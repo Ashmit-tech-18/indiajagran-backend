@@ -53,7 +53,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/subscribers', subscriberRoutes);
 app.use('/api/contact', contactRoutes);
 
-const PORT = process.Dprocess.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
 
 // Connect to MongoDB and then start the server
 console.log('Connecting to MongoDB...');
