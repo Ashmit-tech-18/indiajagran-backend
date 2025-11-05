@@ -55,8 +55,7 @@ app.use(cors(corsOptions));
 // Middleware
 app.use(express.json());
 
-// Serve static files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 // --- Sabhi routes ko yahan use karein ---
 app.use('/api/auth', authRoutes);
