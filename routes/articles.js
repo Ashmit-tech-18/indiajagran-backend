@@ -9,16 +9,24 @@ const {
     getArticlesByCategory,
     searchArticles,
     getArticleById,
-    generateSitemap // --- FIX 1: Sitemap function ko import karein ---
+    generateSitemap
 } = require('../controllers/articleController');
 const auth = require('../middleware/authMiddleware');
 
 // --- Public Routes ---
 router.get('/', getAllArticles);
+
+// ---
+// --- !!! FIX FOR UPTIME ROBOT !!! ---
+// ---
+// Yeh Uptime Robot ki 'HEAD' request ko '200 OK' ka jawab dega
+router.head('/', (req, res) => {
+    res.sendStatus(200);
+});
+// --- END OF FIX ---
+
 router.get('/search', searchArticles);
 
-// --- FIX 2: Naya sitemap route add karein ---
-// (Yeh route /:slug se pehle hona zaroori hai)
 router.get('/sitemap', generateSitemap); 
 
 // Category routes ko generic /:slug se pehle rakha gaya hai
