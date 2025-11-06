@@ -1,16 +1,16 @@
-// File: backend/models/Article.js (UPDATED: Tags field removed)
+// File: backend/models/Article.js (UPDATED: Default author name changed)
 
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const articleSchema = new Schema({
     
-    // --- Aapke maujooda Dual-Language fields (Waise hi hain) ---
-    title_en: { // Legacy Title fields, ab sirf internal use ke liye ya empty rahenge
+    // --- Aapke maujooda Dual-Language fields ---
+    title_en: { 
         type: String,
         default: '' 
     },
-    title_hi: { // Legacy Title fields, ab sirf internal use ke liye ya empty rahenge
+    title_hi: { 
         type: String,
         default: '' 
     },
@@ -72,12 +72,8 @@ const articleSchema = new Schema({
     },
     
     // --- REMOVED: Tags field has been removed ---
-    // tags: {
-    //     type: [String], 
-    //     default: []     
-    // },
     
-    // --- Baaki sabhi fields (Waise hi hain) ---
+    // --- Baaki sabhi fields ---
     category: {
         type: String,
         required: true
@@ -91,10 +87,14 @@ const articleSchema = new Schema({
         unique: true,
         index: true
     },
+    
+    // --- !!! FIX: Default author name ko update kiya gaya hai !!! ---
     author: {
         type: String,
-        default: 'Madhur News'
+        default: 'News Chakra' // 'Madhur News' se badal diya gaya hai
     },
+    // --- END OF FIX ---
+
     sourceUrl: {
         type: String,
         default: null
