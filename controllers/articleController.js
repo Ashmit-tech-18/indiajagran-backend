@@ -1,30 +1,17 @@
-// File: backend/controllers/articleController.js (UPDATED: Tags field removed)
+// File: backend/controllers/articleController.js (FIXED: Removed 'tags' from GNews fetch)
 
 const Article = require('../models/Article');
 const axios = require('axios');
 
-// Helper function to create a URL-friendly slug from a title
-const createSlug = (title) => {
-    if (!title) return '';
-    return title.toString().toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
-};
-
-// Helper to format title case
-const formatTitle = (text = '') => {
-    return text.replace(/\b\w/g, char => char.toUpperCase());
-};
-
-// @desc    Create a new article
+// ... (baki ke functions jaise createSlug, formatTitle, createArticle, etc. waise hi rahenge) ...
+// ... (createArticle) ...
 exports.createArticle = async (req, res) => {
     
-    // --- UPDATE: 'tags' ko hata diya gaya hai ---
     const { 
         title_en, title_hi, 
         summary_en, summary_hi, 
         content_en, content_hi, 
         category, subcategory, featuredImage, galleryImages,
-        // 'tags' yahan se hata diya gaya hai
-        // --- Naye fields ---
         urlHeadline,
         shortHeadline,
         longHeadline,
@@ -60,14 +47,12 @@ exports.createArticle = async (req, res) => {
             subcategory,
             featuredImage,
             galleryImages: galleryImages || [],
-            // tags: tags || [], // --- 'tags' yahan se hata diya gaya hai ---
-            
             urlHeadline: urlHeadline || '',
             shortHeadline: shortHeadline || '',
             longHeadline: longHeadline || '',
             kicker: kicker || '',
             keywords: keywords || [],
-            author: author || 'Madhur News',
+            author: author || 'Madhur News', // Ise baad me 'News Chakra' kar sakte hain
             sourceUrl: sourceUrl || '',
             thumbnailCaption: thumbnailCaption || ''
         });
@@ -81,7 +66,7 @@ exports.createArticle = async (req, res) => {
     }
 };
 
-// @desc    Get all articles
+// ... (getAllArticles) ...
 exports.getAllArticles = async (req, res) => {
     try {
         const articles = await Article.find().sort({ createdAt: -1 });
@@ -92,7 +77,7 @@ exports.getAllArticles = async (req, res) => {
     }
 };
 
-// @desc    Get single article by ID
+// ... (getArticleById) ...
 exports.getArticleById = async (req, res) => {
     try {
         const article = await Article.findById(req.params.id);
@@ -106,7 +91,7 @@ exports.getArticleById = async (req, res) => {
     }
 };
 
-// @desc    Get single article by slug
+// ... (getArticleBySlug) ...
 exports.getArticleBySlug = async (req, res) => {
     try {
         const article = await Article.findOne({ slug: req.params.slug });
@@ -120,7 +105,7 @@ exports.getArticleBySlug = async (req, res) => {
     }
 };
 
-// --- GET ARTICLES BY CATEGORY ---
+// ... (getArticlesByCategory) ...
 exports.getArticlesByCategory = async (req, res) => {
     let query = {};
     try {
@@ -146,8 +131,11 @@ exports.getArticlesByCategory = async (req, res) => {
     } catch (err) {
         console.error("Error in getArticlesByCategory:", err.message);
         if (err.response) {
-            console.error("GNews API Error:", err.response.data);
+            console.error("GNews API Error Response:", err.response.data);
+        } else {
+            console.error("GNews Error (No Response):", err);
         }
+        
         if (!res.headersSent) {
             const articlesFromDb = await Article.find(query).sort({ createdAt: -1 }).limit(20);
             res.json(articlesFromDb);
@@ -155,7 +143,7 @@ exports.getArticlesByCategory = async (req, res) => {
     }
 };
 
-// --- SEARCH FUNCTION ---
+// ... (searchArticles) ...
 exports.searchArticles = async (req, res) => {
     try {
         const searchQuery = req.query.q;
@@ -173,7 +161,6 @@ exports.searchArticles = async (req, res) => {
                 { summary_hi: { $regex: searchRegex } },
                 { content_en: { $regex: searchRegex } },
                 { content_hi: { $regex: searchRegex } },
-                // { tags: { $regex: searchRegex } }, // --- 'tags' yahan se hata diya gaya hai ---
                 { longHeadline: { $regex: searchRegex } },
                 { shortHeadline: { $regex: searchRegex } },
                 { kicker: { $regex: searchRegex } },
@@ -191,16 +178,14 @@ exports.searchArticles = async (req, res) => {
     }
 };
 
-// --- UPDATE ARTICLE ---
+// ... (updateArticle) ...
 exports.updateArticle = async (req, res) => {
     
-    // --- UPDATE: 'tags' ko hata diya gaya hai ---
     const { 
         title_en, title_hi, 
         summary_en, summary_hi, 
         content_en, content_hi, 
         category, subcategory, featuredImage, galleryImages,
-        // 'tags' yahan se hata diya gaya hai
         urlHeadline,
         shortHeadline,
         longHeadline,
@@ -223,7 +208,6 @@ exports.updateArticle = async (req, res) => {
         articleFields.slug = newSlug;
     }
 
-    // Ab title_en/hi ko empty save hone denge agar user unhe khali bhejta hai
     if (title_en !== undefined) articleFields.title_en = title_en;
     if (title_hi !== undefined) articleFields.title_hi = title_hi;
     
@@ -235,11 +219,6 @@ exports.updateArticle = async (req, res) => {
     if (subcategory !== undefined) articleFields.subcategory = subcategory;
     if (featuredImage !== undefined) articleFields.featuredImage = featuredImage;
     if (galleryImages !== undefined) articleFields.galleryImages = galleryImages;
-
-    // --- 'tags' yahan se hata diya gaya hai ---
-    // if (tags !== undefined) {
-    //     articleFields.tags = tags;
-    // }
 
     if (urlHeadline !== undefined) articleFields.urlHeadline = urlHeadline;
     if (shortHeadline !== undefined) articleFields.shortHeadline = shortHeadline;
@@ -267,7 +246,7 @@ exports.updateArticle = async (req, res) => {
     }
 };
 
-// --- DELETE ARTICLE ---
+// ... (deleteArticle) ...
 exports.deleteArticle = async (req, res) => {
     try {
         const article = await Article.findByIdAndDelete(req.params.id);
@@ -284,6 +263,7 @@ exports.deleteArticle = async (req, res) => {
 
 // -----------------------------------------------------------------
 // --- AUTO-FETCH LOGIC (GNEWS) ---
+// --- UPDATED: 'tags' REMOVED ---
 // -----------------------------------------------------------------
 const fetchAndStoreNewsForCategory = async (category) => {
     let newArticlesCount = 0;
@@ -317,7 +297,7 @@ const fetchAndStoreNewsForCategory = async (category) => {
             if (!existingArticle && articleData.image && articleData.description) {
                 
                 const newArticle = new Article({
-                    title_en: articleData.title, // Legacy title
+                    title_en: articleData.title, 
                     title_hi: '',
                     summary_en: articleData.description,
                     summary_hi: '',
@@ -328,13 +308,14 @@ const fetchAndStoreNewsForCategory = async (category) => {
                     shortHeadline: articleData.title,
                     longHeadline: articleData.title,
                     kicker: '',
-                    keywords: [], // GNews keywords nahi deta
+                    keywords: [], 
                     
                     slug: newSlug,
                     category: formatTitle(category),
-                    author: articleData.source.name || 'Madhur News',
+                    author: articleData.source.name || 'Madhur News', // Ise baad me 'News Chakra' kar sakte hain
                     sourceUrl: articleData.url,
-                    // tags: [], // --- 'tags' yahan se hata diya gaya hai ---
+                    
+                    // --- FIX: 'tags: []' YAHAN SE HATA DIYA GAYA HAI ---
                     
                     featuredImage: articleData.image,
                     thumbnailCaption: '',
@@ -345,7 +326,7 @@ const fetchAndStoreNewsForCategory = async (category) => {
                 await newArticle.save();
                 newArticlesCount++;
             } else if (existingArticle) {
-                console.log(`[Auto-Fetch] Skipping duplicate article (slug exists): ${newSlug}`);
+                // console.log(`[Auto-Fetch] Skipping duplicate article (slug exists): ${newSlug}`);
             }
         }
         
@@ -354,9 +335,11 @@ const fetchAndStoreNewsForCategory = async (category) => {
         }
 
     } catch (err) {
-        console.error(`[Auto-Fetch] Error fetching news for ${category}:`, err.message);
+        console.error(`[Auto-Fetch] Error fetching news for ${category}:`);
         if (err.response) {
-            console.error("GNews API Error:", err.response.data);
+            console.error("GNews API Error Response:", JSON.stringify(err.response.data, null, 2));
+        } else {
+            console.error("GNews Error (No Response):", err.message);
         }
     }
 };
