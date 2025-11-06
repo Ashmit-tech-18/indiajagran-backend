@@ -1,18 +1,19 @@
+// File: backend/models/Article.js (UPDATED: Tags field removed)
+
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const articleSchema = new Schema({
     
-    // --- Aapke maujooda Dual-Language fields (Koi badlav nahi) ---
-    title_en: {
+    // --- Aapke maujooda Dual-Language fields (Waise hi hain) ---
+    title_en: { // Legacy Title fields, ab sirf internal use ke liye ya empty rahenge
         type: String,
-        default: '' // English title
+        default: '' 
     },
-    title_hi: {
+    title_hi: { // Legacy Title fields, ab sirf internal use ke liye ya empty rahenge
         type: String,
-        default: '' // Hindi title
+        default: '' 
     },
-
     summary_en: {
         type: String,
         default: '' // English summary
@@ -21,7 +22,6 @@ const articleSchema = new Schema({
         type: String,
         default: '' // Hindi summary
     },
-
     content_en: {
         type: String,
         default: '' // English content
@@ -31,29 +31,56 @@ const articleSchema = new Schema({
         default: '' // Hindi content
     },
 
-    // --- Aapke maujooda Media fields (Koi badlav nahi) ---
-    featuredImage: {
-        type: String
+    // --- NEW PROFESSIONAL FIELDS ---
+    urlHeadline: {
+        type: String,
+        default: ''
     },
-    galleryImages: {
+    shortHeadline: {
+        type: String,
+        default: ''
+    },
+    longHeadline: {
+        type: String,
+        default: ''
+    },
+    kicker: {
+        type: String,
+        default: ''
+    },
+    keywords: { // SEO Meta Tag Keywords (Ab iska hi use hoga)
         type: [String],
         default: []
     },
-
-    // ---
-    // --- ! NEW UPDATE (Tags/Keywords) ! ---
-    // ---
-    tags: {
-        type: [String], // Yeh strings ka ek array hoga
-        default: []     // Default khaali array
+    
+    // --- Media fields ---
+    featuredImage: {
+        type: String
     },
-    // --- END OF NEW UPDATE ---
-    // ---
-
-    // --- Baaki sabhi fields (Koi badlav nahi) ---
+    thumbnailCaption: {
+        type: String,
+        default: ''
+    },
+    galleryImages: {
+        type: [
+            {
+                url: String,
+                caption: String
+            }
+        ],
+        default: []
+    },
+    
+    // --- REMOVED: Tags field has been removed ---
+    // tags: {
+    //     type: [String], 
+    //     default: []     
+    // },
+    
+    // --- Baaki sabhi fields (Waise hi hain) ---
     category: {
         type: String,
-        required: true // Category abhi bhi required hai
+        required: true
     },
     subcategory: {
         type: String
@@ -72,7 +99,7 @@ const articleSchema = new Schema({
         type: String,
         default: null
     }
-}, { timestamps: true }); // 'createdAt' aur 'updatedAt' bhi maujood hain
+}, { timestamps: true });
 
 const Article = mongoose.model('Article', articleSchema);
 

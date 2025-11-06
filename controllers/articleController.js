@@ -1,5 +1,7 @@
+// File: backend/controllers/articleController.js (UPDATED: Tags field removed)
+
 const Article = require('../models/Article');
-const axios = require('axios'); // Axios ko import karein
+const axios = require('axios');
 
 // Helper function to create a URL-friendly slug from a title
 const createSlug = (title) => {
@@ -15,18 +17,27 @@ const formatTitle = (text = '') => {
 // @desc    Create a new article
 exports.createArticle = async (req, res) => {
     
-    // --- FIX: 'tags' ko req.body se nikaalein ---
+    // --- UPDATE: 'tags' ko hata diya gaya hai ---
     const { 
         title_en, title_hi, 
         summary_en, summary_hi, 
         content_en, content_hi, 
         category, subcategory, featuredImage, galleryImages,
-        tags // Naya field
+        // 'tags' yahan se hata diya gaya hai
+        // --- Naye fields ---
+        urlHeadline,
+        shortHeadline,
+        longHeadline,
+        kicker,
+        keywords,
+        author,
+        sourceUrl,
+        thumbnailCaption
     } = req.body;
 
-    const slugTitle = title_en || title_hi;
+    const slugTitle = urlHeadline || longHeadline || title_en || title_hi;
     if (!slugTitle || slugTitle.trim() === '') {
-         return res.status(400).json({ msg: 'At least one title (EN or HI) is required to create a slug.' });
+         return res.status(400).json({ msg: 'At least one title (URL, Long, EN, or HI) is required to create a slug.' });
     }
     
     let slug = createSlug(slugTitle);
@@ -49,7 +60,16 @@ exports.createArticle = async (req, res) => {
             subcategory,
             featuredImage,
             galleryImages: galleryImages || [],
-            tags: tags || [] // --- FIX: 'tags' ko yahan add karein ---
+            // tags: tags || [], // --- 'tags' yahan se hata diya gaya hai ---
+            
+            urlHeadline: urlHeadline || '',
+            shortHeadline: shortHeadline || '',
+            longHeadline: longHeadline || '',
+            kicker: kicker || '',
+            keywords: keywords || [],
+            author: author || 'Madhur News',
+            sourceUrl: sourceUrl || '',
+            thumbnailCaption: thumbnailCaption || ''
         });
 
         const savedArticle = await newArticle.save();
@@ -153,8 +173,11 @@ exports.searchArticles = async (req, res) => {
                 { summary_hi: { $regex: searchRegex } },
                 { content_en: { $regex: searchRegex } },
                 { content_hi: { $regex: searchRegex } },
-                { title: { $regex: searchRegex } },
-                { tags: { $regex: searchRegex } } // --- FIX: Search me 'tags' ko add karein ---
+                // { tags: { $regex: searchRegex } }, // --- 'tags' yahan se hata diya gaya hai ---
+                { longHeadline: { $regex: searchRegex } },
+                { shortHeadline: { $regex: searchRegex } },
+                { kicker: { $regex: searchRegex } },
+                { keywords: { $regex: searchRegex } }
             ]
         })
         .sort({ createdAt: -1 })
@@ -171,31 +194,39 @@ exports.searchArticles = async (req, res) => {
 // --- UPDATE ARTICLE ---
 exports.updateArticle = async (req, res) => {
     
-    // --- FIX: 'tags' ko req.body se nikaalein ---
+    // --- UPDATE: 'tags' ko hata diya gaya hai ---
     const { 
         title_en, title_hi, 
         summary_en, summary_hi, 
         content_en, content_hi, 
         category, subcategory, featuredImage, galleryImages,
-        tags // Naya field
+        // 'tags' yahan se hata diya gaya hai
+        urlHeadline,
+        shortHeadline,
+        longHeadline,
+        kicker,
+        keywords,
+        author,
+        sourceUrl,
+        thumbnailCaption
     } = req.body;
     
     const articleFields = {};
 
-    if (title_en || title_hi) {
-        const newSlugTitle = title_en || title_hi;
-        if (newSlugTitle) {
-            const newSlug = createSlug(newSlugTitle);
-            const existingArticle = await Article.findOne({ slug: newSlug, _id: { $ne: req.params.id } });
-            if (existingArticle) {
-                return res.status(400).json({ msg: 'An article with this title (slug) already exists. Please choose a different title.' });
-            }
-            articleFields.slug = newSlug;
+    const newSlugTitle = urlHeadline || longHeadline || title_en || title_hi;
+    if (newSlugTitle) {
+        const newSlug = createSlug(newSlugTitle);
+        const existingArticle = await Article.findOne({ slug: newSlug, _id: { $ne: req.params.id } });
+        if (existingArticle) {
+            return res.status(400).json({ msg: 'An article with this title (slug) already exists. Please choose a different title.' });
         }
-        if (title_en !== undefined) articleFields.title_en = title_en;
-        if (title_hi !== undefined) articleFields.title_hi = title_hi;
+        articleFields.slug = newSlug;
     }
 
+    // Ab title_en/hi ko empty save hone denge agar user unhe khali bhejta hai
+    if (title_en !== undefined) articleFields.title_en = title_en;
+    if (title_hi !== undefined) articleFields.title_hi = title_hi;
+    
     if (summary_en !== undefined) articleFields.summary_en = summary_en;
     if (summary_hi !== undefined) articleFields.summary_hi = summary_hi;
     if (content_en !== undefined) articleFields.content_en = content_en;
@@ -205,10 +236,19 @@ exports.updateArticle = async (req, res) => {
     if (featuredImage !== undefined) articleFields.featuredImage = featuredImage;
     if (galleryImages !== undefined) articleFields.galleryImages = galleryImages;
 
-    // --- FIX: 'tags' ko update object me add karein ---
-    if (tags !== undefined) {
-        articleFields.tags = tags;
-    }
+    // --- 'tags' yahan se hata diya gaya hai ---
+    // if (tags !== undefined) {
+    //     articleFields.tags = tags;
+    // }
+
+    if (urlHeadline !== undefined) articleFields.urlHeadline = urlHeadline;
+    if (shortHeadline !== undefined) articleFields.shortHeadline = shortHeadline;
+    if (longHeadline !== undefined) articleFields.longHeadline = longHeadline;
+    if (kicker !== undefined) articleFields.kicker = kicker;
+    if (keywords !== undefined) articleFields.keywords = keywords;
+    if (author !== undefined) articleFields.author = author;
+    if (sourceUrl !== undefined) articleFields.sourceUrl = sourceUrl;
+    if (thumbnailCaption !== undefined) articleFields.thumbnailCaption = thumbnailCaption;
 
     try {
         let article = await Article.findById(req.params.id);
@@ -269,43 +309,45 @@ const fetchAndStoreNewsForCategory = async (category) => {
         const newsApiResponse = await axios.get(`https://gnews.io/api/v4/top-headlines`, { params: apiParams });
         const fetchedArticles = newsApiResponse.data.articles;
 
-        // ========= YAHAN SE FIX SHURU HAI =========
         for (const articleData of fetchedArticles) {
             
-            // 1. Pehle slug banayein
             const newSlug = createSlug(articleData.title);
-
-            // 2. Ab 'title_en' ki jagah 'slug' se check karein
             const existingArticle = await Article.findOne({ slug: newSlug });
             
-            // 3. Agar article (slug) nahin milta, tabhi save karein
             if (!existingArticle && articleData.image && articleData.description) {
                 
                 const newArticle = new Article({
-                    title_en: articleData.title,
-                    slug: newSlug, // Pehle se banaya gaya slug use karein
-                    summary_en: articleData.description,
-                    content_en: articleData.description + ` <br><br><a href="${articleData.url}" target="_blank" rel="noopener noreferrer" style="color: #007bff; text-decoration: underline;">Read full story...</a>`,
-                    
+                    title_en: articleData.title, // Legacy title
                     title_hi: '',
+                    summary_en: articleData.description,
                     summary_hi: '',
+                    content_en: articleData.description + ` <br><br><a href="${articleData.url}" target="_blank" rel="noopener noreferrer" style="color: #007bff; text-decoration: underline;">Read full story...</a>`,
                     content_hi: '',
                     
+                    urlHeadline: newSlug,
+                    shortHeadline: articleData.title,
+                    longHeadline: articleData.title,
+                    kicker: '',
+                    keywords: [], // GNews keywords nahi deta
+                    
+                    slug: newSlug,
                     category: formatTitle(category),
-                    featuredImage: articleData.image,
                     author: articleData.source.name || 'Madhur News',
-                    createdAt: new Date(articleData.publishedAt),
                     sourceUrl: articleData.url,
-                    tags: [] // 'tags' ko khaali array se initialize karein
+                    // tags: [], // --- 'tags' yahan se hata diya gaya hai ---
+                    
+                    featuredImage: articleData.image,
+                    thumbnailCaption: '',
+                    galleryImages: [],
+
+                    createdAt: new Date(articleData.publishedAt),
                 });
                 await newArticle.save();
                 newArticlesCount++;
             } else if (existingArticle) {
-                // Yeh log add karna achha hai, taaki aapko pata chale ki kitne duplicates skip hue
                 console.log(`[Auto-Fetch] Skipping duplicate article (slug exists): ${newSlug}`);
             }
         }
-        // ========= YAHAN PAR FIX KHATM HUA =========
         
         if (newArticlesCount > 0) {
             console.log(`[Auto-Fetch] Successfully saved ${newArticlesCount} new articles for ${category}.`);
