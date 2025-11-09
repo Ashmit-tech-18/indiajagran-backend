@@ -1,4 +1,5 @@
-// File: backend/server.js (FIXED: CORS Error for netlify.app)
+// File: backend/server.js
+// (FIXED: Connection order AND better logging)
 
 const dotenv = require('dotenv');
 const express = require('express');
@@ -9,23 +10,15 @@ const cron = require('node-cron');
 
 dotenv.config();
 
-const authRoutes = require('./routes/auth');
-const articleRoutes = require('./routes/articles');
-const uploadRoutes = require('./routes/upload');
-const subscriberRoutes = require('./routes/subscribers');
-const contactRoutes = require('./routes/contact');
-
-const { runGNewsAutoFetch } = require('./controllers/articleController');
-
 const app = express();
 
 // -----------------------------------------------------------------
-// --- !!! FIX: CORS ko "newschakra.netlify.app" ke liye update kiya gaya hai !!! ---
+// --- CORS CONFIG (Aapka original code, bilkul sahi hai) ---
 // -----------------------------------------------------------------
 const allowedOrigins = [
-    'https://newschakra.live',       // Aapka custom domain
-    'https://newschakra.netlify.app', // Aapka Netlify domain (Yeh naya hai)
-    'http://localhost:3000'         // Aapki local frontend site
+    'https://newschakra.live',       
+    'https://newschakra.netlify.app', 
+    'http://localhost:3000'         
 ];
 
 const corsOptions = {
@@ -42,18 +35,11 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 // -----------------------------------------------------------------
-// --- FIX KHATM HUA ---
+// --- CORS FIX KHATM HUA ---
 // -----------------------------------------------------------------
 
 // Middleware
 app.use(express.json());
-
-// --- Sabhi routes ko yahan use karein ---
-app.use('/api/auth', authRoutes);
-app.use('/api/articles', articleRoutes);
-app.use('/api/upload', uploadRoutes);
-app.use('/api/subscribers', subscriberRoutes);
-app.use('/api/contact', contactRoutes);
 
 // PORT
 const PORT = process.env.PORT || 5000;
@@ -64,6 +50,24 @@ mongoose.connect(process.env.MONGO_URI)
 .then(() => {
     console.log('MongoDB Connected successfully!');
     
+    // --- !!! FIX: Routes ko connection ke BAAD load karein !!! ---
+    const authRoutes = require('./routes/auth');
+    const articleRoutes = require('./routes/articles');
+    const uploadRoutes = require('./routes/upload');
+    const subscriberRoutes = require('./routes/subscribers');
+    const contactRoutes = require('./routes/contact');
+    
+    const { runGNewsAutoFetch } = require('./controllers/articleController');
+    
+    // --- Sabhi routes ko yahan use karein ---
+    app.use('/api/auth', authRoutes);
+    app.use('/api/articles', articleRoutes);
+    app.use('/api/upload', uploadRoutes);
+    app.use('/api/subscribers', subscriberRoutes);
+    app.use('/api/contact', contactRoutes);
+    // --- FIX END ---
+
+    // Server ko yahan start karein
     app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
     
     console.log('Setting up GNews auto-fetch job...');
@@ -72,12 +76,16 @@ mongoose.connect(process.env.MONGO_URI)
         runGNewsAutoFetch();
     });
 
-    // (Initial fetch abhi bhi disabled hai taki 502 error na aaye)
-    // console.log('Running initial GNews fetch on server start...');
-    // runGNewsAutoFetch(); 
-
 })
 .catch(err => {
-    console.error('Failed to connect to MongoDB', err);
+    // --- !!! BETTER ERROR LOGGING !!! ---
+    // Ab yeh "Failed to connect" nahi dikhayega agar problem baad mein aati hai.
+    if (err.name === 'OverwriteModelError') {
+        console.error('SERVER STARTUP FAILED: Model Overwrite Error.');
+        console.error('Please check your model files (e.g., Article.js) for the fix.');
+        console.error(err);
+    } else {
+        console.error('CRITICAL: Failed to connect to MongoDB', err);
+    }
     process.exit(1);
 });

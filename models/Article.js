@@ -1,11 +1,10 @@
-// File: backend/models/Article.js (UPDATED: Default author name changed)
+// File: backend/models/Article.js (FIXED: Yeh aapki MODEL file hai)
 
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const articleSchema = new Schema({
     
-    // --- Aapke maujooda Dual-Language fields ---
     title_en: { 
         type: String,
         default: '' 
@@ -16,22 +15,20 @@ const articleSchema = new Schema({
     },
     summary_en: {
         type: String,
-        default: '' // English summary
+        default: ''
     },
     summary_hi: {
         type: String,
-        default: '' // Hindi summary
+        default: ''
     },
     content_en: {
         type: String,
-        default: '' // English content
+        default: ''
     },
     content_hi: {
         type: String,
-        default: '' // Hindi content
+        default: ''
     },
-
-    // --- NEW PROFESSIONAL FIELDS ---
     urlHeadline: {
         type: String,
         default: ''
@@ -48,12 +45,10 @@ const articleSchema = new Schema({
         type: String,
         default: ''
     },
-    keywords: { // SEO Meta Tag Keywords (Ab iska hi use hoga)
+    keywords: {
         type: [String],
         default: []
     },
-    
-    // --- Media fields ---
     featuredImage: {
         type: String
     },
@@ -70,10 +65,6 @@ const articleSchema = new Schema({
         ],
         default: []
     },
-    
-    // --- REMOVED: Tags field has been removed ---
-    
-    // --- Baaki sabhi fields ---
     category: {
         type: String,
         required: true
@@ -87,20 +78,19 @@ const articleSchema = new Schema({
         unique: true,
         index: true
     },
-    
-    // --- !!! FIX: Default author name ko update kiya gaya hai !!! ---
     author: {
         type: String,
-        default: 'News Chakra' // 'Madhur News' se badal diya gaya hai
+        default: 'News Chakra'
     },
-    // --- END OF FIX ---
-
     sourceUrl: {
         type: String,
         default: null
     }
 }, { timestamps: true });
 
-const Article = mongoose.model('Article', articleSchema);
+
+// --- !!! OverwriteModelError ka FIX YAHAN HAI !!! ---
+// Yeh check karta hai ki model pehle se bana hai ya nahi.
+const Article = mongoose.models.Article || mongoose.model('Article', articleSchema);
 
 module.exports = Article;
