@@ -63,7 +63,7 @@ const createArticle = async (req, res) => {
             longHeadline: longHeadline || '',
             kicker: kicker || '',
             keywords: keywords || [],
-            author: author || 'News Chakra',
+            author: author || 'India Jagran',
             sourceUrl: sourceUrl || '',
             thumbnailCaption: thumbnailCaption || ''
         });
@@ -461,7 +461,7 @@ const fetchAndStoreNewsForCategory = async (category) => {
                     
                     slug: newSlug,
                     category: formatTitle(category),
-                    author: articleData.source.name || 'News Chakra',
+                    author: articleData.source.name || 'India Jagran',
                     sourceUrl: articleData.url,
                     
                     featuredImage: articleData.image,

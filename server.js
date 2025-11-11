@@ -1,5 +1,5 @@
 // File: backend/server.js
-// (UPDATED: Registered Analytics Route without changing old logic)
+// (UPDATED: Domain changed to India Jagran)
 
 const dotenv = require('dotenv');
 const express = require('express');
@@ -13,11 +13,11 @@ dotenv.config();
 const app = express();
 
 // -----------------------------------------------------------------
-// --- CORS CONFIG (Aapka original code, bilkul sahi hai) ---
+// --- CORS CONFIG (Updated for India Jagran) ---
 // -----------------------------------------------------------------
 const allowedOrigins = [
-    'https://newschakra.live',       
-    'https://newschakra.netlify.app', 
+    'https://indiajagran.com',       
+    'https://www.indiajagran.com', 
     'http://localhost:3000'         
 ];
 
@@ -35,7 +35,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 // -----------------------------------------------------------------
-// --- CORS FIX KHATM HUA ---
+// --- CORS CONFIG END ---
 // -----------------------------------------------------------------
 
 // Middleware
@@ -57,7 +57,7 @@ mongoose.connect(process.env.MONGO_URI)
     const subscriberRoutes = require('./routes/subscribers');
     const contactRoutes = require('./routes/contact');
     
-    // --- !!! NEW UPDATE: Analytics Route Load !!! ---
+    // --- Analytics Route Load ---
     const analyticsRoutes = require('./routes/analytics'); 
     // ------------------------------------------------
 
@@ -70,11 +70,11 @@ mongoose.connect(process.env.MONGO_URI)
     app.use('/api/subscribers', subscriberRoutes);
     app.use('/api/contact', contactRoutes);
 
-    // --- !!! NEW UPDATE: Use Analytics Route !!! ---
+    // --- Use Analytics Route ---
     app.use('/api/analytics', analyticsRoutes);
     // -----------------------------------------------
 
-    // Server ko yahan start karein
+    // Server Start
     app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
     
     console.log('Setting up GNews auto-fetch job...');
@@ -85,7 +85,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 })
 .catch(err => {
-    // --- Error Logging (Unchanged) ---
+    // --- Error Logging ---
     if (err.name === 'OverwriteModelError') {
         console.error('SERVER STARTUP FAILED: Model Overwrite Error.');
         console.error('Please check your model files (e.g., Article.js) for the fix.');

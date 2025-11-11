@@ -88,7 +88,7 @@ const articleSchema = new Schema({
     },
     author: {
         type: String,
-        default: 'News Chakra'
+        default: 'India Jagran'
     },
     sourceUrl: {
         type: String,
