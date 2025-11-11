@@ -1,5 +1,5 @@
 // File: backend/server.js
-// (FIXED: Connection order AND better logging)
+// (UPDATED: Registered Analytics Route without changing old logic)
 
 const dotenv = require('dotenv');
 const express = require('express');
@@ -50,22 +50,29 @@ mongoose.connect(process.env.MONGO_URI)
 .then(() => {
     console.log('MongoDB Connected successfully!');
     
-    // --- !!! FIX: Routes ko connection ke BAAD load karein !!! ---
+    // --- Routes Load ---
     const authRoutes = require('./routes/auth');
     const articleRoutes = require('./routes/articles');
     const uploadRoutes = require('./routes/upload');
     const subscriberRoutes = require('./routes/subscribers');
     const contactRoutes = require('./routes/contact');
     
+    // --- !!! NEW UPDATE: Analytics Route Load !!! ---
+    const analyticsRoutes = require('./routes/analytics'); 
+    // ------------------------------------------------
+
     const { runGNewsAutoFetch } = require('./controllers/articleController');
     
-    // --- Sabhi routes ko yahan use karein ---
+    // --- Routes Register ---
     app.use('/api/auth', authRoutes);
     app.use('/api/articles', articleRoutes);
     app.use('/api/upload', uploadRoutes);
     app.use('/api/subscribers', subscriberRoutes);
     app.use('/api/contact', contactRoutes);
-    // --- FIX END ---
+
+    // --- !!! NEW UPDATE: Use Analytics Route !!! ---
+    app.use('/api/analytics', analyticsRoutes);
+    // -----------------------------------------------
 
     // Server ko yahan start karein
     app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
@@ -78,8 +85,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 })
 .catch(err => {
-    // --- !!! BETTER ERROR LOGGING !!! ---
-    // Ab yeh "Failed to connect" nahi dikhayega agar problem baad mein aati hai.
+    // --- Error Logging (Unchanged) ---
     if (err.name === 'OverwriteModelError') {
         console.error('SERVER STARTUP FAILED: Model Overwrite Error.');
         console.error('Please check your model files (e.g., Article.js) for the fix.');
