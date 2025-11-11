@@ -1,4 +1,4 @@
-// File: backend/routes/articles.js (FIXED: Naya 'top-news' route add kiya gaya)
+// File: backend/routes/articles.js (UPDATED: Added Level 3 District Route)
 
 const express = require('express');
 const router = express.Router();
@@ -11,12 +11,12 @@ const {
     getArticleBySlug,
     getArticlesByCategory,
     getRelatedArticles, 
-    getTopNews, // --- !!! YAHAN NAYA FUNCTION IMPORT KIYA GAYA !!! ---
+    getTopNews, 
     searchArticles,
     updateArticle,
     deleteArticle,
     generateSitemap
-} = require('../controllers/articleController'); // Controller se functions aa rahe hain
+} = require('../controllers/articleController'); 
 
 // --- Article Routes ---
 
@@ -44,26 +44,27 @@ router.get('/id/:id', getArticleById);
 // @desc    Get article by slug
 router.get('/slug/:slug', getArticleBySlug);
 
-// @route   GET /api/articles/category/:category
-// @desc    Get articles by category
+// --- CATEGORY ROUTES (UPDATED) ---
+
+// Level 1: Category only (e.g., /category/national)
 router.get('/category/:category', getArticlesByCategory);
 
-// @route   GET /api/articles/category/:category/:subcategory
-// @desc    Get articles by category and subcategory
+// Level 2: Category + Subcategory (e.g., /category/national/uttar-pradesh)
 router.get('/category/:category/:subcategory', getArticlesByCategory);
 
-// --- !!! NAYA ROUTE YAHAN ADD KIYA GAYA HAI !!! ---
+// --- !!! NEW LEVEL 3 ROUTE ADDED !!! ---
+// Level 3: Category + Subcategory + District (e.g., /category/national/uttar-pradesh/lucknow)
+router.get('/category/:category/:subcategory/:district', getArticlesByCategory);
+// ---------------------------------------
+
+
 // @route   GET /api/articles/related
-// @desc    Get 4 related articles (Optimized)
+// @desc    Get related articles (Supports limit)
 router.get('/related', getRelatedArticles);
-// --- FIX END ---
 
-
-// --- !!! YAHAN NAYA 'TOP-NEWS' ROUTE ADD KIYA GAYA HAI !!! ---
 // @route   GET /api/articles/top-news
 // @desc    Get top news articles (for sidebar)
 router.get('/top-news', getTopNews);
-// --- NAYA ROUTE END ---
 
 
 // @route   PUT /api/articles/:id
@@ -74,7 +75,4 @@ router.put('/:id', updateArticle);
 // @desc    Delete an article
 router.delete('/:id', deleteArticle);
 
-
-// --- YEH SABSE ZAROORI HAI ---
-// Is file ko router ki tarah export karein
 module.exports = router;

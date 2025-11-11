@@ -1,4 +1,4 @@
-// File: backend/models/Article.js (FIXED: Yeh aapki MODEL file hai)
+// File: backend/models/Article.js (UPDATED: Added 'district' field)
 
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
@@ -65,13 +65,21 @@ const articleSchema = new Schema({
         ],
         default: []
     },
+    // --- CATEGORY SECTION ---
     category: {
         type: String,
         required: true
     },
     subcategory: {
-        type: String
+        type: String,
+        default: ''
     },
+    // --- !!! NEW FIELD ADDED !!! ---
+    district: {
+        type: String,
+        default: '' // Optional, kyunki har news district ki nahi hoti
+    },
+    // -------------------------------
     slug: { 
         type: String,
         required: true,
@@ -89,8 +97,7 @@ const articleSchema = new Schema({
 }, { timestamps: true });
 
 
-// --- !!! OverwriteModelError ka FIX YAHAN HAI !!! ---
-// Yeh check karta hai ki model pehle se bana hai ya nahi.
+// --- OverwriteModelError Fix ---
 const Article = mongoose.models.Article || mongoose.model('Article', articleSchema);
 
 module.exports = Article;
