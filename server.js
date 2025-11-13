@@ -5,8 +5,8 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const cron = require('node-cron'); 
-// const path = require('path'); // Ab iski zaroorat nahi
-// const fs = require('fs').promises; // Iski bhi zaroorat nahi
+// const path = require('path'); 
+// const fs = require('fs').promises;
 
 dotenv.config();
 
@@ -59,14 +59,24 @@ cron.schedule('0 * * * *', () => {
 });
 
 // ============================================================
-// 🔥 MAGIC ROUTE FOR SOCIAL SHARING (WhatsApp/FB)
+// 🔥 MAGIC ROUTE FOR SOCIAL SHARING (WhatsApp/FB) - FINAL DEBUG VERSION
 // ============================================================
-// Ye bina kisi file ke HTML generate karega, isliye ye CRASH NAHI HOGA.
 const Article = require('./models/Article'); 
 
 app.get('/news/:slug', async (req, res) => {
+    // --- LOG 1: Route Hit ---
+    console.log(`[DEBUG_ROUTE] Request received for sharing slug: ${req.params.slug}`);
+
     try {
         const article = await Article.findOne({ slug: req.params.slug });
+        
+        // --- LOG 2: Article Check ---
+        if (!article) {
+            console.log(`[DEBUG_DB] Article NOT FOUND for slug: ${req.params.slug}. Sending default HTML.`);
+        } else {
+            console.log(`[DEBUG_DB] SUCCESS! Article found: ${article.longHeadline}`);
+        }
+        // -----------------------------
 
         const title = article ? (article.title_hi || article.longHeadline) : 'India Jagran News';
         let description = article ? (article.summary_hi || article.summary_en) : 'Latest News from India Jagran';
