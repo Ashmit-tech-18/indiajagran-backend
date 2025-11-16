@@ -6,6 +6,10 @@ const Article = require('../models/Article');
 const multer = require('multer');
 const { protect } = require('../middleware/auth');
 
+// ☁️ RESTORED: Cloudinary Imports & Config
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+
 const { 
     getArticles, 
     getArticleById, 
@@ -20,15 +24,27 @@ const {
     getTopNews,
     searchArticles,
     getArticleBySlug,
-    getHomeFeed // <--- Imported
+    getHomeFeed 
 } = require('../controllers/articleController');
 
-// Multer Config
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => { cb(null, 'uploads/'); },
-    filename: (req, file, cb) => { cb(null, `${Date.now()}-${file.originalname}`); },
+// --- Cloudinary Configuration (UNCHANGED) ---
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
 });
-const upload = multer({ storage });
+
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'india_jagran_news', // Folder name in Cloudinary
+        allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
+    },
+});
+
+// Initialize Multer with Cloudinary Storage
+const upload = multer({ storage }); 
+// -----------------------------------
 
 // Helper Middleware
 const adminOnly = (req, res, next) => {
@@ -36,16 +52,14 @@ const adminOnly = (req, res, next) => {
     else { res.status(403).json({ message: 'Not authorized as an admin' }); }
 };
 
-
-
 // ==================================================================
-// 🔥 PRIORITY 1: SPECIAL & ADMIN ROUTES
+// ⚡ PRIORITY 1: SPECIAL & ADMIN ROUTES
 // ==================================================================
 
 // Admin Dashboard Route
 router.get('/admin/all', protect, adminOnly, getAdminArticles);
 
-// Optimized Home Feed Route
+// Optimized Home Feed
 router.get('/feed', getHomeFeed);
 
 // Search & Features
@@ -54,39 +68,44 @@ router.get('/top-news', getTopNews);
 router.get('/related', getRelatedArticles);
 
 // ==================================================================
-// 🔥 PRIORITY 2: CATEGORY ROUTES
+// ⚡ PRIORITY 2: CATEGORY ROUTES
 // ==================================================================
 router.get('/category/:category', getArticlesByCategory);
 router.get('/category/:category/:subcategory', getArticlesByCategory);
 router.get('/category/:category/:subcategory/:district', getArticlesByCategory);
 
 // ==================================================================
-// 🔥 PRIORITY 3: GENERAL & DYNAMIC ROUTES
+// ⚡ PRIORITY 3: GENERAL & DYNAMIC ROUTES
 // ==================================================================
 
-// Public Feed
 router.get('/', getArticles);
-
-// Get By Slug
 router.get('/slug/:slug', getArticleBySlug);
-
-// Get By ID
 router.get('/id/:id', getArticleById); 
 
 // ==================================================================
-// 🔥 PRIORITY 4: WRITE OPERATIONS (Protected)
+// ⚡ PRIORITY 4: WRITE OPERATIONS (FIXED & PROTECTED)
 // ==================================================================
 
-router.post('/', protect, createArticle);
-router.put('/:id', protect, updateArticle);
-router.delete('/:id', protect, deleteArticle);
-router.post('/upload', protect, upload.single('image'), uploadImage);
+// 1. Create Article (Added Image Support)
+// Note: Frontend se formData me 'featuredImage' key bhejna zaroori hai
+router.post('/', protect, upload.single('featuredImage'), createArticle);
 
-// Admin Status Update
+// 2. Update Article (🔥 CRITICAL FIX: Added Image Support)
+// Ab jab aap edit karke nayi photo daalenge, ye middleware use pakad lega
+router.put('/:id', protect, upload.single('featuredImage'), updateArticle);
+
+// 3. Delete Article (Unchanged)
+router.delete('/:id', protect, deleteArticle);
+
+// 4. Direct Image Upload (For Rich Text Editor)
+// Note: Standard field name usually 'file' hota hai editors me
+router.post('/upload', protect, upload.single('file'), uploadImage);
+
+// 5. Admin Status Update
 router.put('/:id/status', protect, adminOnly, updateArticleStatus);
 
 // ==================================================================
-// 🔥 LAST PRIORITY: CATCH-ALL ID ROUTE
+// ⚡ LAST PRIORITY: CATCH-ALL ID ROUTE
 // ==================================================================
 router.get('/:id', getArticleById);
 

@@ -2,10 +2,10 @@
 
 const Article = require('../models/Article');
 const axios = require('axios');
-const multer = require('multer');
-const path = require('path');
+// const multer = require('multer'); // OLD: Hata diya (Ab route middleware handle karega)
+// const path = require('path');     // OLD: Hata diya (Cloudinary direct URL deta hai)
 
-// --- Helper functions ---
+// --- Helper functions (UNCHANGED) ---
 const createSlug = (title) => {
     if (!title) return '';
     return title.toString().toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
@@ -20,7 +20,7 @@ const createSmartRegex = (text) => {
 };
 
 // ---------------------------------------------------------
-// 1. CREATE ARTICLE
+// 1. CREATE ARTICLE (FIXED: Added Image Logic)
 // ---------------------------------------------------------
 const createArticle = async (req, res) => {
     const { 
@@ -37,6 +37,12 @@ const createArticle = async (req, res) => {
     
     let slug = createSlug(slugTitle);
 
+    // 🔥 FIX: Agar file upload hui hai, to featuredImage ko Cloudinary URL se replace karo
+    let finalFeaturedImage = featuredImage;
+    if (req.file && req.file.path) {
+        finalFeaturedImage = req.file.path;
+    }
+
     try {
         const articleExists = await Article.findOne({ slug });
         if (articleExists) slug = `${slug}-${Date.now()}`;
@@ -50,7 +56,8 @@ const createArticle = async (req, res) => {
             summary_en: summary_en || '', summary_hi: summary_hi || '',
             content_en: content_en || '', content_hi: content_hi || '',
             slug, category, subcategory, district: district || '',
-            featuredImage, galleryImages: galleryImages || [],
+            featuredImage: finalFeaturedImage, // Updated Variable
+            galleryImages: galleryImages || [],
             urlHeadline: urlHeadline || '', shortHeadline: shortHeadline || '',
             longHeadline: longHeadline || '', kicker: kicker || '',
             keywords: keywords || [], 
@@ -69,7 +76,7 @@ const createArticle = async (req, res) => {
 };
 
 // ---------------------------------------------------------
-// 2. GET ARTICLES (Public - Only Published)
+// 2. GET ARTICLES (UNCHANGED)
 // ---------------------------------------------------------
 const getArticles = async (req, res) => {
     try {
@@ -84,7 +91,7 @@ const getArticles = async (req, res) => {
 };
 
 // ---------------------------------------------------------
-// 🔥 NEW: SMART HOME FEED (Ensures Every Section is Filled)
+// SMART HOME FEED (UNCHANGED)
 // ---------------------------------------------------------
 const getHomeFeed = async (req, res) => {
     try {
@@ -149,12 +156,16 @@ const getHomeFeed = async (req, res) => {
 };
 
 // ---------------------------------------------------------
-// ADMIN FUNCTIONS
+// ADMIN FUNCTIONS (FIXED: Upload & Update)
 // ---------------------------------------------------------
 
 const uploadImage = async (req, res) => {
+    // 🔥 FIX: Ab ye local path nahi, balki Cloudinary URL return karega
+    // Note: Route file me 'upload.single' middleware hona zaroori hai
     if (!req.file) return res.status(400).send('No file uploaded.');
-    res.status(200).json({ filePath: `/uploads/${req.file.filename}` });
+    
+    // Cloudinary storage automatically sets 'path' to the secure http url
+    res.status(200).json({ filePath: req.file.path });
 };
 
 const getAdminArticles = async (req, res) => {
@@ -176,7 +187,7 @@ const updateArticleStatus = async (req, res) => {
 };
 
 // ---------------------------------------------------------
-// READER FUNCTIONS
+// READER FUNCTIONS (UNCHANGED)
 // ---------------------------------------------------------
 
 const getArticleById = async (req, res) => {
@@ -294,11 +305,21 @@ const searchArticles = async (req, res) => {
     } catch (err) { res.status(200).json([]); }
 };
 
+// 🔥 FIX: UPDATE ARTICLE (Cloudinary Image Update Handle karega)
 const updateArticle = async (req, res) => {
     try {
+        let updateData = { ...req.body };
+
+        // Check: Agar file upload hui hai, toh featuredImage update karo
+        if (req.file && req.file.path) {
+            updateData.featuredImage = req.file.path;
+        }
+
         let article = await Article.findById(req.params.id);
         if (!article) return res.status(404).json({ msg: 'Article not found' });
-        article = await Article.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true });
+        
+        // Update Logic
+        article = await Article.findByIdAndUpdate(req.params.id, { $set: updateData }, { new: true });
         res.json(article);
     } catch (err) { res.status(500).send('Server Error'); }
 };
@@ -310,7 +331,7 @@ const deleteArticle = async (req, res) => {
     } catch (err) { res.status(500).send('Server Error'); }
 };
 
-// --- GNEWS & SITEMAP ---
+// --- GNEWS & SITEMAP (UNCHANGED) ---
 
 const fetchAndStoreNewsForCategory = async (category) => {
     let newArticlesCount = 0;

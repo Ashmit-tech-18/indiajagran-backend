@@ -812,3 +812,77 @@
 {"level":"info","message":"\u001b[0mGET /api/articles/category/Business \u001b[36m304\u001b[0m 193.633 ms - -\u001b[0m","timestamp":"2025-11-16T12:31:24.273Z"}
 {"level":"info","message":"\u001b[0mOPTIONS /api/articles/admin/all \u001b[32m200\u001b[0m 0.124 ms - 0\u001b[0m","timestamp":"2025-11-16T12:31:28.188Z"}
 {"level":"info","message":"\u001b[0mGET /api/articles/admin/all \u001b[32m200\u001b[0m 1794.115 ms - -\u001b[0m","timestamp":"2025-11-16T12:31:30.104Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-16T15:16:55.556Z"}
+{"level":"info","message":"MongoDB Connected Successfully","timestamp":"2025-11-16T15:16:56.542Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-16T15:23:41.834Z"}
+{"level":"info","message":"MongoDB Connected Successfully","timestamp":"2025-11-16T15:23:43.165Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-16T18:08:24.306Z"}
+{"level":"info","message":"MongoDB Connected Successfully","timestamp":"2025-11-16T18:08:25.517Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-16T18:08:31.456Z"}
+{"level":"info","message":"MongoDB Connected Successfully","timestamp":"2025-11-16T18:08:35.779Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-16T18:15:43.175Z"}
+{"level":"info","message":"MongoDB Connected Successfully","timestamp":"2025-11-16T18:15:43.778Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-16T18:18:04.844Z"}
+{"level":"info","message":"MongoDB Connected Successfully","timestamp":"2025-11-16T18:18:05.527Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m200\u001b[0m 1.599 ms - 0\u001b[0m","timestamp":"2025-11-16T18:21:01.285Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 2692.610 ms - -\u001b[0m","timestamp":"2025-11-16T18:21:04.163Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 2542.127 ms - -\u001b[0m","timestamp":"2025-11-16T18:21:07.909Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 2923.418 ms - -\u001b[0m","timestamp":"2025-11-16T18:21:14.519Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/1763295919950-12.jpeg \u001b[36m304\u001b[0m 9.150 ms - -\u001b[0m","timestamp":"2025-11-16T18:21:14.650Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/slug/the-centre-has-directed-insurance-companies-to-expedite-the-settlement-of-health-claims-and-also-develop-standard-treatment-protocols \u001b[32m200\u001b[0m 94.670 ms - -\u001b[0m","timestamp":"2025-11-16T18:21:22.128Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/top-news?lang=hi&exclude=the-centre-has-directed-insurance-companies-to-expedite-the-settlement-of-health-claims-and-also-develop-standard-treatment-protocols \u001b[32m200\u001b[0m 44.022 ms - -\u001b[0m","timestamp":"2025-11-16T18:21:22.180Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/related?category=Business&slug=the-centre-has-directed-insurance-companies-to-expedite-the-settlement-of-health-claims-and-also-develop-standard-treatment-protocols&lang=hi&limit=6 \u001b[32m200\u001b[0m 61.734 ms - -\u001b[0m","timestamp":"2025-11-16T18:21:22.259Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 3172.756 ms - -\u001b[0m","timestamp":"2025-11-16T18:21:41.799Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/1763295919950-12.jpeg \u001b[36m304\u001b[0m 3.606 ms - -\u001b[0m","timestamp":"2025-11-16T18:21:41.876Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/Politics \u001b[32m200\u001b[0m 263.118 ms - -\u001b[0m","timestamp":"2025-11-16T18:21:42.752Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/Business \u001b[32m200\u001b[0m 282.617 ms - -\u001b[0m","timestamp":"2025-11-16T18:21:46.266Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 3810.653 ms - -\u001b[0m","timestamp":"2025-11-16T18:21:52.830Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/auth/login \u001b[32m200\u001b[0m 0.576 ms - 0\u001b[0m","timestamp":"2025-11-16T18:22:01.599Z"}
+{"level":"info","message":"\u001b[0mPOST /api/auth/login \u001b[32m200\u001b[0m 216.392 ms - 284\u001b[0m","timestamp":"2025-11-16T18:22:01.819Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/admin/all \u001b[32m200\u001b[0m 0.218 ms - 0\u001b[0m","timestamp":"2025-11-16T18:22:02.188Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/admin/all \u001b[32m200\u001b[0m 4175.995 ms - -\u001b[0m","timestamp":"2025-11-16T18:22:06.474Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/admin/all \u001b[32m200\u001b[0m 0.148 ms - 0\u001b[0m","timestamp":"2025-11-16T18:22:11.162Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/admin/all \u001b[32m200\u001b[0m 4619.688 ms - -\u001b[0m","timestamp":"2025-11-16T18:22:15.892Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/1763295919950-12.jpeg \u001b[36m304\u001b[0m 2.453 ms - -\u001b[0m","timestamp":"2025-11-16T18:22:15.961Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/id/69198ada3e1a1d83cdf33b80 \u001b[32m200\u001b[0m 0.085 ms - 0\u001b[0m","timestamp":"2025-11-16T18:22:28.114Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/id/69198ada3e1a1d83cdf33b80 \u001b[32m200\u001b[0m 0.143 ms - 0\u001b[0m","timestamp":"2025-11-16T18:22:28.117Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/id/69198ada3e1a1d83cdf33b80 \u001b[32m200\u001b[0m 84.637 ms - -\u001b[0m","timestamp":"2025-11-16T18:22:28.202Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/1763293285962-mp.jpg \u001b[36m304\u001b[0m 0.448 ms - -\u001b[0m","timestamp":"2025-11-16T18:22:28.247Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/id/69198ada3e1a1d83cdf33b80 \u001b[32m200\u001b[0m 78.173 ms - -\u001b[0m","timestamp":"2025-11-16T18:22:28.295Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/National/Madhya%20Pradesh \u001b[32m200\u001b[0m 0.400 ms - 0\u001b[0m","timestamp":"2025-11-16T18:22:45.968Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/National/Madhya%20Pradesh \u001b[32m200\u001b[0m 94.440 ms - -\u001b[0m","timestamp":"2025-11-16T18:22:46.070Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/slug/mp-tech-growth-conclave-investment-job-creation \u001b[32m200\u001b[0m 0.287 ms - 0\u001b[0m","timestamp":"2025-11-16T18:22:51.729Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/slug/mp-tech-growth-conclave-investment-job-creation \u001b[32m200\u001b[0m 83.559 ms - -\u001b[0m","timestamp":"2025-11-16T18:22:51.821Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/top-news?lang=hi&exclude=mp-tech-growth-conclave-investment-job-creation \u001b[32m200\u001b[0m 0.366 ms - 0\u001b[0m","timestamp":"2025-11-16T18:22:51.828Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/top-news?lang=hi&exclude=mp-tech-growth-conclave-investment-job-creation \u001b[32m200\u001b[0m 51.113 ms - -\u001b[0m","timestamp":"2025-11-16T18:22:51.887Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/related?category=National&slug=mp-tech-growth-conclave-investment-job-creation&lang=hi&limit=6 \u001b[32m200\u001b[0m 0.119 ms - 0\u001b[0m","timestamp":"2025-11-16T18:22:51.892Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/related?category=National&slug=mp-tech-growth-conclave-investment-job-creation&lang=hi&limit=6 \u001b[32m200\u001b[0m 97.873 ms - -\u001b[0m","timestamp":"2025-11-16T18:22:51.995Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m200\u001b[0m 0.213 ms - 0\u001b[0m","timestamp":"2025-11-16T18:22:59.194Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 7567.438 ms - -\u001b[0m","timestamp":"2025-11-16T18:23:06.916Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/1763295919950-12.jpeg \u001b[36m304\u001b[0m 0.724 ms - -\u001b[0m","timestamp":"2025-11-16T18:23:07.239Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/World \u001b[32m200\u001b[0m 0.156 ms - 0\u001b[0m","timestamp":"2025-11-16T18:23:10.923Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/World \u001b[32m200\u001b[0m 940.455 ms - -\u001b[0m","timestamp":"2025-11-16T18:23:11.869Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/Politics \u001b[32m200\u001b[0m 0.287 ms - 0\u001b[0m","timestamp":"2025-11-16T18:23:13.445Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/Politics \u001b[36m304\u001b[0m 293.840 ms - -\u001b[0m","timestamp":"2025-11-16T18:23:13.746Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/Business \u001b[32m200\u001b[0m 0.346 ms - 0\u001b[0m","timestamp":"2025-11-16T18:23:15.220Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/Business \u001b[36m304\u001b[0m 383.960 ms - -\u001b[0m","timestamp":"2025-11-16T18:23:15.607Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/1763295919950-12.jpeg \u001b[36m304\u001b[0m 1.185 ms - -\u001b[0m","timestamp":"2025-11-16T18:23:15.635Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/Entertainment \u001b[32m200\u001b[0m 0.375 ms - 0\u001b[0m","timestamp":"2025-11-16T18:23:16.267Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/Entertainment \u001b[32m200\u001b[0m 213.996 ms - -\u001b[0m","timestamp":"2025-11-16T18:23:16.486Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/Sports \u001b[32m200\u001b[0m 0.142 ms - 0\u001b[0m","timestamp":"2025-11-16T18:23:17.143Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/Sports \u001b[32m200\u001b[0m 218.988 ms - -\u001b[0m","timestamp":"2025-11-16T18:23:17.372Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/Education \u001b[32m200\u001b[0m 0.376 ms - 0\u001b[0m","timestamp":"2025-11-16T18:23:18.077Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/Education \u001b[32m200\u001b[0m 89.193 ms - -\u001b[0m","timestamp":"2025-11-16T18:23:18.170Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/Health \u001b[32m200\u001b[0m 0.337 ms - 0\u001b[0m","timestamp":"2025-11-16T18:23:19.218Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/Health \u001b[32m200\u001b[0m 267.395 ms - -\u001b[0m","timestamp":"2025-11-16T18:23:19.493Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/Religion \u001b[32m200\u001b[0m 0.366 ms - 0\u001b[0m","timestamp":"2025-11-16T18:23:20.002Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/Religion \u001b[36m304\u001b[0m 58.532 ms - -\u001b[0m","timestamp":"2025-11-16T18:23:20.066Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/Crime \u001b[32m200\u001b[0m 0.931 ms - 0\u001b[0m","timestamp":"2025-11-16T18:23:21.048Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/Crime \u001b[32m200\u001b[0m 93.349 ms - -\u001b[0m","timestamp":"2025-11-16T18:23:21.148Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/Poetry%20Corner \u001b[32m200\u001b[0m 0.299 ms - 0\u001b[0m","timestamp":"2025-11-16T18:23:23.681Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/Poetry%20Corner \u001b[32m200\u001b[0m 59.843 ms - -\u001b[0m","timestamp":"2025-11-16T18:23:23.746Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/Politics \u001b[32m200\u001b[0m 0.470 ms - 0\u001b[0m","timestamp":"2025-11-16T18:23:26.051Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/Politics \u001b[36m304\u001b[0m 348.485 ms - -\u001b[0m","timestamp":"2025-11-16T18:23:26.403Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/National \u001b[32m200\u001b[0m 0.419 ms - 0\u001b[0m","timestamp":"2025-11-16T18:29:58.583Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/National \u001b[32m200\u001b[0m 658.775 ms - -\u001b[0m","timestamp":"2025-11-16T18:29:59.255Z"}
+{"level":"info","message":"Running Auto Fetch Job...","timestamp":"2025-11-16T18:30:00.045Z"}
