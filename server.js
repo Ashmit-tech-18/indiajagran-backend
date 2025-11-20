@@ -19,6 +19,64 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// =======================================================================
+// 🔥 FIX 1: CORS BYPASS/HANDLE FOR SITEMAP (Code ko sabse upar rakha hai) 🔥
+// =======================================================================
+app.get('/sitemap.xml', async (req, res) => {
+    logger.info("Sitemap generation started...");
+    try {
+        // Articles fetch, sirf woh fields jo sitemap ke liye chahiye
+        const articles = await Article.find({}, 'slug updatedAt');
+        
+        const baseUrl = 'https://www.indiajagran.com';
+        
+        let sitemap = '<?xml version="1.0" encoding="UTF-8"?>';
+        sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+
+        // Static Pages
+        sitemap += `
+            <url><loc>${baseUrl}/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
+            <url><loc>${baseUrl}/about</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+            <url><loc>${baseUrl}/contact</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+            <url><loc>${baseUrl}/privacy-policy</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+        `;
+
+        // Dynamic Articles ko Loop karke add karein
+        articles.forEach(article => {
+            let dateString = new Date().toISOString(); // Default to now
+            
+            // Safer Date Check
+            if (article.updatedAt) {
+                dateString = new Date(article.updatedAt).toISOString();
+            } else if (article.createdAt) {
+                dateString = new Date(article.createdAt).toISOString();
+            }
+
+            if (article.slug) {
+                sitemap += `
+                <url>
+                    <loc>${baseUrl}/article/${article.slug}</loc>
+                    <lastmod>${dateString}</lastmod>
+                    <changefreq>weekly</changefreq>
+                    <priority>0.8</priority>
+                </url>`;
+            }
+        });
+
+        sitemap += '</urlset>';
+        logger.info("Sitemap generated successfully.");
+        
+        res.header('Content-Type', 'application/xml');
+        res.send(sitemap);
+
+    } catch (e) {
+        logger.error("SITEMAP ROUTE CRASH:", e);
+        // User ko 500 Error dega, aur logs mein detail aayegi
+        res.status(500).send("Error generating sitemap. Check server logs.");
+    }
+});
+// =======================================================================
+
 // --- Middleware ---
 app.use(compression());
 app.use(
@@ -35,18 +93,22 @@ const allowedOrigins = [
     'https://www.indiajagran.com',
     'http://localhost:3000',
     'http://localhost:5000',
-    'http://127.0.0.1:5000'
+    'http://127.0.0.1:5000',
+    // 🔥 FIX 2: Render Backend aur Vercel Frontend ko ek dusre ke liye allowed karein
+    'https://indiajagran-backend.onrender.com' 
 ];
 
 const corsOptions = {
     origin: function (origin, callback) {
-        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        // Agar origin undefined (jaise server-to-server request) ya allowed list mein hai
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) { 
             callback(null, true);
         } else {
+            // Agar origin allowed nahi hai toh CORS error throw hoga
             callback(new Error('Not allowed by CORS'));
         }
     },
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'OPTIONS', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
 };
@@ -59,9 +121,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ===========================================================================
-// 🔥 MAGIC ROUTE: WhatsApp/Facebook Preview Fix 🔥
+// 🔥 MAGIC ROUTE: WhatsApp/Facebook Preview Fix (UNCHANGED) 🔥
 // ===========================================================================
 app.get('/article/:slug', async (req, res, next) => {
+    // ... [No changes made to this route] ...
     const userAgent = req.headers['user-agent'] || '';
     const { slug } = req.params;
     
@@ -119,6 +182,7 @@ app.get('/article/:slug', async (req, res, next) => {
     }
 });
 
+
 // --- API Routes (FIXED: Removed '/v1' to match Frontend) ---
 const authRoutes = require('./routes/auth');
 const articleRoutes = require('./routes/articles');
@@ -126,65 +190,13 @@ const contactRoutes = require('./routes/contact');
 const analyticsRoutes = require('./routes/analytics');
 const subscriberRoutes = require('./routes/subscribers');
 
-// Yahan Maine '/api/v1/...' ko hata kar '/api/...' kar diya hai
+// Yahan Maine '/api/v1/...' ko hata kar '/api/...' kar diya hai (UNCHANGED)
 app.use('/api/auth', authRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/subscriber', subscriberRoutes);
 
-// --- Sitemap & Root ---
-app.get('/sitemap.xml', async (req, res) => {
-    try {
-        // 1. Database se saare articles layein (Sirf slug aur updatedAt chahiye)
-        const articles = await Article.find({}, 'slug updatedAt').sort({ updatedAt: -1 }).limit(1000);
-
-        // 2. XML ka Header define karein
-        const baseUrl = 'https://www.indiajagran.com';
-        
-        // 3. XML String start karein
-        let sitemap = '<?xml version="1.0" encoding="UTF-8"?>';
-        sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
-
-        // 4. Static Pages (Home, About, Contact etc.) add karein manually
-        sitemap += `
-            <url>
-                <loc>${baseUrl}/</loc>
-                <changefreq>daily</changefreq>
-                <priority>1.0</priority>
-            </url>
-            <url>
-                <loc>${baseUrl}/about</loc>
-                <changefreq>monthly</changefreq>
-                <priority>0.8</priority>
-            </url>
-        `;
-
-        // 5. Dynamic Articles ko Loop karke add karein
-        articles.forEach(article => {
-            sitemap += `
-            <url>
-                <loc>${baseUrl}/article/${article.slug}</loc>
-                <lastmod>${new Date(article.updatedAt).toISOString()}</lastmod>
-                <changefreq>weekly</changefreq>
-                <priority>0.8</priority>
-            </url>`;
-        });
-
-        // 6. XML close karein
-        sitemap += '</urlset>';
-
-        // 7. Response Header set karein taaki Browser/Google isse XML samjhe
-        res.header('Content-Type', 'application/xml');
-        
-        // 8. Send karein
-        res.send(sitemap);
-
-    } catch (error) {
-        console.error("Sitemap Error:", error);
-        res.status(500).send("Error generating sitemap");
-    }
-});
 
 // --- Error Handling ---
 app.use((err, req, res, next) => {
