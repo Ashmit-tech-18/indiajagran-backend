@@ -472,60 +472,64 @@ const runGNewsAutoFetch = async () => {
 
 const generateSitemap = async (req, res) => {
     try {
-        res.setHeader("Content-Type", "text/xml; charset=UTF-8");
+        // 1. Set Headers immediately
+        res.setHeader('Content-Type', 'application/xml');
+        // Disable compression specifically for this stream to prevent buffering issues
+        res.setHeader('Content-Encoding', 'identity'); 
 
         const baseUrl = "https://www.indiajagran.com";
-
-        let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
-        xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
-
         const today = new Date().toISOString();
 
-        const addUrl = (loc, lastmod, priority) => {
-            xml += `<url>
-<loc>${loc}</loc>
-<lastmod>${lastmod}</lastmod>
-<priority>${priority}</priority>
-</url>\n`;
-        };
+        // 2. Start the XML Stream
+        res.write('<?xml version="1.0" encoding="UTF-8"?>\n');
+        res.write('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n');
 
-        // STATIC PAGES
+        // 3. Write Static Pages
         const staticPages = ["", "about", "contact", "privacy-policy", "terms-condition", "subscribe"];
-        staticPages.forEach(page => addUrl(`${baseUrl}/${page}`, today, page === "" ? "1.0" : "0.8"));
-
-        // STATIC CATEGORIES
-        const categories = ["national","politics","business","entertainment","sports","world","education","health","religion","crime","poetry-corner"];
-        categories.forEach(cat => addUrl(`${baseUrl}/category/${cat}`, today, "0.9"));
-
-        // DYNAMIC ARTICLES
-        const articles = await Article.find({ status: "published" })
-            .select("slug createdAt updatedAt")
-            .sort({ createdAt: -1 })
-            .lean();
-
-        articles.forEach(art => {
-            if (!art.slug) return;
-
-            let finalDate = today;
-            if (art.updatedAt && !isNaN(new Date(art.updatedAt))) {
-                finalDate = new Date(art.updatedAt).toISOString();
-            } else if (art.createdAt && !isNaN(new Date(art.createdAt))) {
-                finalDate = new Date(art.createdAt).toISOString();
-            }
-
-            addUrl(`${baseUrl}/article/${art.slug}`, finalDate, "0.7");
+        staticPages.forEach(page => {
+            res.write(`  <url>\n    <loc>${baseUrl}/${page}</loc>\n    <lastmod>${today}</lastmod>\n    <priority>${page === "" ? "1.0" : "0.8"}</priority>\n  </url>\n`);
         });
 
-        xml += '</urlset>';
+        // 4. Write Categories
+        const categories = ["national","politics","business","entertainment","sports","world","education","health","religion","crime","poetry-corner"];
+        categories.forEach(cat => {
+            res.write(`  <url>\n    <loc>${baseUrl}/category/${cat}</loc>\n    <lastmod>${today}</lastmod>\n    <priority>0.9</priority>\n  </url>\n`);
+        });
 
-        return res.status(200).send(xml);
+        // 5. STREAM ARTICLES (Magic Fix 🚀)
+        // Cursor database se 1-1 karke data layega, memory full nahi hogi.
+        const cursor = Article.find({ status: "published" })
+            .select("slug createdAt updatedAt")
+            .sort({ createdAt: -1 })
+            .cursor();
+
+        for (let doc = await cursor.next(); doc != null; doc = await cursor.next()) {
+            if (doc.slug) {
+                let dateStr = today;
+                // Safe Date Logic
+                try {
+                    if (doc.updatedAt) dateStr = new Date(doc.updatedAt).toISOString();
+                    else if (doc.createdAt) dateStr = new Date(doc.createdAt).toISOString();
+                } catch (e) {
+                    dateStr = today; // Fallback to today if date is broken
+                }
+
+                // Write directly to response (No RAM storage)
+                res.write(`  <url>\n    <loc>${baseUrl}/article/${doc.slug}</loc>\n    <lastmod>${dateStr}</lastmod>\n    <priority>0.7</priority>\n  </url>\n`);
+            }
+        }
+
+        // 6. Close the XML
+        res.write('</urlset>');
+        res.end(); // Khatam
 
     } catch (error) {
-        console.error("Sitemap Error:", error);
-        return res.status(500).send("Server Error While Generating Sitemap");
+        console.error("Sitemap Stream Error:", error);
+        // Agar stream shuru hone ke baad error aaya, toh hum status code change nahi kar sakte, 
+        // bas connection close kar denge.
+        res.end(); 
     }
 };
-
 
 // 🔥 EXPORTS
 module.exports = {

@@ -1,39 +1,39 @@
-// File: backend/server.js
-
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const cron = require('node-cron'); 
-const path = require('path'); 
+const cron = require('node-cron');
+const path = require('path');
 
-// --- 🔥 IMPORT: Sitemap Controller ---
-const { generateSitemap } = require('./controllers/articleController'); 
+// --- Import Sitemap Controller ---
+const { generateSitemap } = require('./controllers/articleController');
 
-// --- 1. Import Optimization & Logging Libraries ---
-const compression = require('compression'); 
+// --- Optimization & Logging ---
+const compression = require('compression');
 const morgan = require('morgan');
-const logger = require('./utils/logger'); 
+const logger = require('./utils/logger');
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// --- 2. Apply Compression (Speed Booster 🚀) ---
+// --- Apply Compression (GLOBAL) ---
 app.use(compression());
 
-// --- 3. Apply Logging (Debug Booster 🐞) ---
-app.use(morgan('dev', {
-    stream: {
-        write: (message) => logger.info(message.trim())
-    }
-}));
+// --- Logging Middleware ---
+app.use(
+    morgan('dev', {
+        stream: {
+            write: (message) => logger.info(message.trim())
+        }
+    })
+);
 
-// --- 4. CORS CONFIG ---
+// --- CORS CONFIG ---
 const allowedOrigins = [
-    'https://indiajagran.com',       
-    'https://www.indiajagran.com', 
+    'https://indiajagran.com',
+    'https://www.indiajagran.com',
     'http://localhost:3000',
     'http://localhost:5000',
     'http://127.0.0.1:5000'
@@ -52,24 +52,38 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use(express.json()); 
+app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
-// --- 5. Connect to MongoDB ---
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => logger.info("MongoDB Connected Successfully"))
-    .catch(err => logger.error("MongoDB Connection Failed: " + err.message));
+// --- Connect to MongoDB ---
+mongoose
+    .connect(process.env.MONGO_URI)
+    .then(() => logger.info('MongoDB Connected Successfully'))
+    .catch((err) =>
+        logger.error('MongoDB Connection Failed: ' + err.message)
+    );
 
-// --- 6. Import Routes ---
+// --- Import Routes ---
 const authRoutes = require('./routes/auth');
 const articleRoutes = require('./routes/articles');
 const contactRoutes = require('./routes/contact');
 
-// --- 🔥 FIXED: Sitemap Route at Root Level ---
-// यह अब https://indiajagran.com/sitemap.xml पर खुलेगा
-app.get('/sitemap.xml', generateSitemap); 
+/*  
+   ------------------------------------------
+   🚀 FIX: DISABLE COMPRESSION ONLY FOR SITEMAP 
+   ------------------------------------------
+*/
 
-// --- 7. Use Routes ---
+app.get('/sitemap.xml', (req, res, next) => {
+    // Prevent gzip/br compression for sitemap only
+    res.set('Content-Encoding', 'identity');
+    next();
+});
+
+// Real sitemap controller
+app.get('/sitemap.xml', generateSitemap);
+
+// --- Use API Routes ---
 app.use('/api/auth', authRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/contact', contactRoutes);
@@ -77,18 +91,24 @@ app.use('/api/contact', contactRoutes);
 // --- Magic Route for Social Share Redirects ---
 app.get('/news/:slug', async (req, res) => {
     try {
-        const Article = require('./models/Article'); 
+        const Article = require('./models/Article');
         const article = await Article.findOne({ slug: req.params.slug });
 
         const frontendUrl = `${process.env.FRONTEND_URL}/news/${req.params.slug}`;
-        
+
         if (!article) {
-             return res.redirect(process.env.FRONTEND_URL);
+            return res.redirect(process.env.FRONTEND_URL);
         }
 
-        const title = article.longHeadline || article.title_en || 'India Jagran News';
-        const description = article.summary_en || 'Latest news updates.';
-        const image = article.featuredImage || 'https://indiajagran.com/logo192.png';
+        const title =
+            article.longHeadline ||
+            article.title_en ||
+            'India Jagran News';
+        const description =
+            article.summary_en || 'Latest news updates.';
+        const image =
+            article.featuredImage ||
+            'https://indiajagran.com/logo192.png';
 
         const html = `
             <!DOCTYPE html>
@@ -118,7 +138,6 @@ app.get('/news/:slug', async (req, res) => {
             </html>
         `;
         res.send(html);
-
     } catch (error) {
         logger.error(`Magic Route Error: ${error.message}`);
         res.status(500).send('Server Error');
@@ -132,10 +151,15 @@ app.get('/', (req, res) => {
 
 // --- Global Error Handling ---
 app.use((err, req, res, next) => {
-    logger.error(err.message); 
-    console.error(err); 
-    res.status(500).json({ message: 'Server Error', error: err.message });
+    logger.error(err.message);
+    console.error(err);
+    res.status(500).json({
+        message: 'Server Error',
+        error: err.message
+    });
 });
 
 // --- Start Server ---
-app.listen(PORT, () => logger.info(`Server running on port ${PORT}`));
+app.listen(PORT, () =>
+    logger.info(`Server running on port ${PORT}`)
+);
