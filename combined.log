@@ -2842,3 +2842,43 @@
 {"level":"info","message":"\u001b[0mGET /api/articles/category/education?lang=hi \u001b[32m200\u001b[0m 132.112 ms - -\u001b[0m","timestamp":"2025-11-20T06:16:25.001Z"}
 {"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m200\u001b[0m 0.249 ms - 0\u001b[0m","timestamp":"2025-11-20T06:16:34.686Z"}
 {"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 1952.740 ms - -\u001b[0m","timestamp":"2025-11-20T06:16:36.796Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-20T06:24:16.990Z"}
+{"level":"info","message":"MongoDB Connected Successfully","timestamp":"2025-11-20T06:24:17.564Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m200\u001b[0m 12.686 ms - 0\u001b[0m","timestamp":"2025-11-20T06:24:27.816Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[0m-\u001b[0m - ms - -\u001b[0m","timestamp":"2025-11-20T06:24:28.869Z"}
+{"level":"info","message":"Running Auto Fetch Job...","timestamp":"2025-11-20T06:30:00.064Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m200\u001b[0m 0.357 ms - 0\u001b[0m","timestamp":"2025-11-20T06:57:09.510Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 1954.313 ms - -\u001b[0m","timestamp":"2025-11-20T06:57:11.962Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m200\u001b[0m 0.096 ms - 0\u001b[0m","timestamp":"2025-11-20T07:01:43.417Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 2014.986 ms - -\u001b[0m","timestamp":"2025-11-20T07:01:45.657Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/poetry-corner?lang=hi \u001b[32m200\u001b[0m 0.184 ms - 0\u001b[0m","timestamp":"2025-11-20T07:01:48.737Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/poetry-corner?lang=hi \u001b[32m200\u001b[0m 63.621 ms - 2\u001b[0m","timestamp":"2025-11-20T07:01:48.802Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/admin/all \u001b[32m200\u001b[0m 0.184 ms - 0\u001b[0m","timestamp":"2025-11-20T07:01:51.305Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/admin/all \u001b[32m200\u001b[0m 1710.858 ms - -\u001b[0m","timestamp":"2025-11-20T07:01:53.145Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/admin/all \u001b[32m200\u001b[0m 1766.673 ms - -\u001b[0m","timestamp":"2025-11-20T07:01:56.903Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/poetry-corner?lang=hi \u001b[32m200\u001b[0m 0.206 ms - 0\u001b[0m","timestamp":"2025-11-20T07:02:06.461Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/poetry-corner?lang=hi \u001b[36m304\u001b[0m 62.280 ms - -\u001b[0m","timestamp":"2025-11-20T07:02:06.525Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m200\u001b[0m 0.231 ms - 0\u001b[0m","timestamp":"2025-11-20T07:04:25.134Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/politics?lang=hi \u001b[32m200\u001b[0m 0.135 ms - 0\u001b[0m","timestamp":"2025-11-20T07:04:26.750Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 1498.732 ms - -\u001b[0m","timestamp":"2025-11-20T07:04:26.781Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/politics?lang=hi \u001b[36m304\u001b[0m 78.848 ms - -\u001b[0m","timestamp":"2025-11-20T07:04:26.833Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/education?lang=hi \u001b[32m200\u001b[0m 0.262 ms - 0\u001b[0m","timestamp":"2025-11-20T07:04:31.137Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/education?lang=hi \u001b[36m304\u001b[0m 131.274 ms - -\u001b[0m","timestamp":"2025-11-20T07:04:31.269Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/sports?lang=hi \u001b[32m200\u001b[0m 0.141 ms - 0\u001b[0m","timestamp":"2025-11-20T07:04:32.073Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/sports?lang=hi \u001b[36m304\u001b[0m 110.603 ms - -\u001b[0m","timestamp":"2025-11-20T07:04:32.186Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/religion?lang=hi \u001b[32m200\u001b[0m 0.335 ms - 0\u001b[0m","timestamp":"2025-11-20T07:04:33.660Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/religion?lang=hi \u001b[32m200\u001b[0m 62.485 ms - -\u001b[0m","timestamp":"2025-11-20T07:04:33.728Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/crime?lang=hi \u001b[32m200\u001b[0m 0.395 ms - 0\u001b[0m","timestamp":"2025-11-20T07:04:34.504Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/crime?lang=hi \u001b[32m200\u001b[0m 96.228 ms - -\u001b[0m","timestamp":"2025-11-20T07:04:34.605Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/poetry-corner?lang=hi \u001b[32m200\u001b[0m 0.130 ms - 0\u001b[0m","timestamp":"2025-11-20T07:04:35.267Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/poetry-corner?lang=hi \u001b[36m304\u001b[0m 61.429 ms - -\u001b[0m","timestamp":"2025-11-20T07:04:35.333Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m200\u001b[0m 0.175 ms - 0\u001b[0m","timestamp":"2025-11-20T07:04:37.390Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 1453.996 ms - -\u001b[0m","timestamp":"2025-11-20T07:04:38.990Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-20T07:05:08.263Z"}
+{"level":"info","message":"MongoDB Connected Successfully","timestamp":"2025-11-20T07:05:08.860Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-20T07:17:15.348Z"}
+{"level":"info","message":"MongoDB Connected Successfully","timestamp":"2025-11-20T07:17:16.076Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-20T07:19:02.907Z"}
+{"level":"info","message":"MongoDB Connected Successfully","timestamp":"2025-11-20T07:19:03.618Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-20T07:29:09.615Z"}
+{"level":"info","message":"MongoDB Connected Successfully","timestamp":"2025-11-20T07:29:12.314Z"}

@@ -483,29 +483,50 @@ const generateSitemap = async (req, res) => {
             return res.status(500).send('Server Error: FRONTEND_URL is not defined in .env');
         }
 
+        // XML Header start
+        res.header('Content-Type', 'application/xml');
         let xml = '<?xml version="1.0" encoding="UTF-8"?>';
         xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+        
         const today = new Date().toISOString();
 
+        // 1. Static Pages
         staticPages.forEach(page => {
             xml += `<url><loc>${baseUrl}/${page}</loc><lastmod>${today}</lastmod><priority>${page === '' ? '1.0' : '0.8'}</priority></url>`;
         });
 
+        // 2. Categories
         staticCategories.forEach(category => {
             xml += `<url><loc>${baseUrl}/category/${category}</loc><lastmod>${today}</lastmod><priority>0.9</priority></url>`;
         });
 
-        const articles = await Article.find({status: 'published'}).select('slug createdAt').sort({ createdAt: -1 });
+        // 3. Articles (OPTIMIZED FIX)
+        // .lean() use karne se memory usage 10x kam ho jata hai (Server crash nahi karega)
+        const articles = await Article.find({ status: 'published' })
+            .select('slug createdAt updatedAt') // Sirf zaroori fields mangwaye
+            .sort({ createdAt: -1 })
+            .lean(); 
 
         articles.forEach(article => {
-            xml += `<url><loc>${baseUrl}/article/${article.slug}</loc><lastmod>${article.createdAt.toISOString()}</lastmod><priority>0.7</priority></url>`;
+            // SAFETY CHECK: Agar date missing ho, toh crash hone ke bajaye current date use kare
+            let dateStr = today;
+            if (article.createdAt) {
+                dateStr = new Date(article.createdAt).toISOString();
+            } else if (article.updatedAt) {
+                dateStr = new Date(article.updatedAt).toISOString();
+            }
+
+            // Ensure Slug exists
+            if (article.slug) {
+                xml += `<url><loc>${baseUrl}/article/${article.slug}</loc><lastmod>${dateStr}</lastmod><priority>0.7</priority></url>`;
+            }
         });
 
         xml += '</urlset>';
-        res.header('Content-Type', 'application/xml');
         res.send(xml);
+
     } catch (err) {
-        console.error(err.message);
+        console.error("Sitemap Error:", err.message);
         res.status(500).send('Server Error');
     }
 };

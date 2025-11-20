@@ -10,6 +10,7 @@ const { protect } = require('../middleware/auth');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
+// 🔥 REMOVED: generateSitemap (Now handled in server.js)
 const { 
     getArticles, 
     getArticleById, 
@@ -34,11 +35,12 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+// 🔥 VIDEO & IMAGE SUPPORT CONFIG
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'india_jagran_news',
-        resource_type: 'auto',       
+        resource_type: 'auto',       // Auto-detect Image or Video
         allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'mp4', 'webm', 'avi', 'mov', 'mkv'], 
     },
 });
@@ -46,7 +48,7 @@ const storage = new CloudinaryStorage({
 const upload = multer({ storage: storage });
 
 // ==================================================================
-// ⚡ PRIORITY 1: SPECIFIC STATIC ROUTES (Must be before dynamic routes)
+// ⚡ PRIORITY 1: SPECIFIC STATIC ROUTES
 // ==================================================================
 
 // Home Feed
@@ -61,11 +63,11 @@ router.get('/related', getRelatedArticles);
 // Search
 router.get('/search', searchArticles);
 
-// 🔥 FIXED: Changed route from '/admin-list' to '/admin/all' to match Frontend
+// Admin Route (Matches Frontend call)
 router.get('/admin/all', protect, getAdminArticles); 
 
 // ==================================================================
-// ⚡ PRIORITY 2: CATEGORY ROUTES
+// ⚡ PRIORITY 2: CATEGORY ROUTES (SPLIT TO PREVENT CRASH)
 // ==================================================================
 
 router.get('/category/:category', getArticlesByCategory);
@@ -84,16 +86,16 @@ router.get('/id/:id', getArticleById);
 // ⚡ PRIORITY 4: WRITE OPERATIONS (PROTECTED)
 // ==================================================================
 
-// 1. Create Article
+// 1. Create Article (Supports Image/Video)
 router.post('/', protect, upload.single('featuredImage'), createArticle);
 
-// 2. Update Article
+// 2. Update Article (Supports Image/Video)
 router.put('/:id', protect, upload.single('featuredImage'), updateArticle);
 
 // 3. Delete Article
 router.delete('/:id', protect, deleteArticle);
 
-// 4. Direct Image/Video Upload
+// 4. Direct Upload (For Editor Gallery/Content)
 router.post('/upload', protect, upload.single('image'), uploadImage);
 
 // 5. Admin Status Update

@@ -7,10 +7,13 @@ const mongoose = require('mongoose');
 const cron = require('node-cron'); 
 const path = require('path'); 
 
+// --- 🔥 IMPORT: Sitemap Controller ---
+const { generateSitemap } = require('./controllers/articleController'); 
+
 // --- 1. Import Optimization & Logging Libraries ---
 const compression = require('compression'); 
 const morgan = require('morgan');
-const logger = require('./utils/logger'); // Winston Logger
+const logger = require('./utils/logger'); 
 
 dotenv.config();
 
@@ -27,7 +30,7 @@ app.use(morgan('dev', {
     }
 }));
 
-// --- 4. CORS CONFIG (PRESERVED) ---
+// --- 4. CORS CONFIG ---
 const allowedOrigins = [
     'https://indiajagran.com',       
     'https://www.indiajagran.com', 
@@ -39,114 +42,67 @@ const allowedOrigins = [
 const corsOptions = {
     origin: function (origin, callback) {
         if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) === -1) {
-            return callback(new Error('CORS Error: This origin is not allowed'), false);
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
         }
-        return callback(null, true);
     },
-    credentials: true,
-    optionsSuccessStatus: 200
+    credentials: true
 };
 
 app.use(cors(corsOptions));
-app.use(express.json());
+app.use(express.json()); 
+app.use('/uploads', express.static('uploads'));
 
-// --- Static Files ---
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// --- 5. Database Connection (PRESERVED) ---
-console.log('Connecting to MongoDB...');
+// --- 5. Connect to MongoDB ---
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => {
-        console.log('MongoDB Connected!');
-        logger.info('MongoDB Connected Successfully');
-    })
-    .catch(err => {
-        console.error('DB Connect Error:', err);
-        logger.error(`DB Connect Error: ${err.message}`);
-    });
+    .then(() => logger.info("MongoDB Connected Successfully"))
+    .catch(err => logger.error("MongoDB Connection Failed: " + err.message));
 
-// --- 6. Load Routes (ALL PRESERVED) ---
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/articles', require('./routes/articles'));
-app.use('/api/upload', require('./routes/upload'));         
-app.use('/api/subscribers', require('./routes/subscribers')); 
-app.use('/api/contact', require('./routes/contact'));
-app.use('/api/analytics', require('./routes/analytics')); 
+// --- 6. Import Routes ---
+const authRoutes = require('./routes/auth');
+const articleRoutes = require('./routes/articles');
+const contactRoutes = require('./routes/contact');
 
-// --- 7. Auto Fetch Cron Job (PRESERVED) ---
-const { runGNewsAutoFetch } = require('./controllers/articleController');
-cron.schedule('0 * * * *', () => {
-    const msg = 'Running Auto Fetch Job...';
-    console.log(msg);
-    logger.info(msg);
-    runGNewsAutoFetch();
-});
+// --- 🔥 FIXED: Sitemap Route at Root Level ---
+// यह अब https://indiajagran.com/sitemap.xml पर खुलेगा
+app.get('/sitemap.xml', generateSitemap); 
 
-// ============================================================
-// 🔥 MAGIC ROUTE FOR SOCIAL SHARING (UPDATED FIX)
-// ============================================================
-const Article = require('./models/Article'); 
+// --- 7. Use Routes ---
+app.use('/api/auth', authRoutes);
+app.use('/api/articles', articleRoutes);
+app.use('/api/contact', contactRoutes);
 
-// Helper to strip HTML tags for description
-const stripHtml = (html) => {
-   return html ? html.replace(/<[^>]*>?/gm, '') : '';
-};
-
+// --- Magic Route for Social Share Redirects ---
 app.get('/news/:slug', async (req, res) => {
-    logger.info(`[SOCIAL_SHARE] Generating preview for: ${req.params.slug}`);
-
     try {
+        const Article = require('./models/Article'); 
         const article = await Article.findOne({ slug: req.params.slug });
+
+        const frontendUrl = `${process.env.FRONTEND_URL}/news/${req.params.slug}`;
         
         if (!article) {
-            return res.redirect(`https://indiajagran.com/article/${req.params.slug}`);
+             return res.redirect(process.env.FRONTEND_URL);
         }
 
-        // 1. Title Logic
-        const title = article.title_hi || article.longHeadline || article.title_en || 'India Jagran News';
-        
-        // 2. Description Logic (Strip HTML & Truncate)
-        let rawDesc = article.summary_hi || article.summary_en || article.content_hi || article.content_en || '';
-        let description = stripHtml(rawDesc).substring(0, 160) + '...';
-        
-        // 3. Image Logic (Robust)
-        const domain = 'https://indiajagran.com';
-        let image = `${domain}/logo.jpg`; // Default Fallback
-        
-        if (article.featuredImage) {
-            if (article.featuredImage.startsWith('http')) {
-                image = article.featuredImage;
-            } else {
-                // Ensure slash logic is correct
-                const cleanPath = article.featuredImage.startsWith('/') ? article.featuredImage : `/${article.featuredImage}`;
-                image = `${domain}${cleanPath}`;
-            }
-        }
+        const title = article.longHeadline || article.title_en || 'India Jagran News';
+        const description = article.summary_en || 'Latest news updates.';
+        const image = article.featuredImage || 'https://indiajagran.com/logo192.png';
 
-        const frontendUrl = `${domain}/article/${req.params.slug}`;
-
-        // 4. Generate HTML with OG Tags
         const html = `
             <!DOCTYPE html>
             <html lang="en">
             <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                
+                <meta charset="UTF-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                 <title>${title}</title>
-                <meta name="description" content="${description}">
                 
-                <meta property="og:type" content="article" />
-                <meta property="og:site_name" content="India Jagran" />
-                <meta property="og:url" content="${frontendUrl}" />
                 <meta property="og:title" content="${title}" />
                 <meta property="og:description" content="${description}" />
                 <meta property="og:image" content="${image}" />
-                <meta property="og:image:secure_url" content="${image}" />
-                <meta property="og:image:width" content="1200" />
-                <meta property="og:image:height" content="630" />
-
+                <meta property="og:type" content="article" />
+                
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:title" content="${title}" />
                 <meta name="twitter:description" content="${description}" />
@@ -164,7 +120,6 @@ app.get('/news/:slug', async (req, res) => {
         res.send(html);
 
     } catch (error) {
-        console.error('Error in Magic Route:', error);
         logger.error(`Magic Route Error: ${error.message}`);
         res.status(500).send('Server Error');
     }
@@ -172,10 +127,10 @@ app.get('/news/:slug', async (req, res) => {
 
 // --- ROOT ROUTE ---
 app.get('/', (req, res) => {
-    res.send('India Jagran Backend is Running Successfully! 🚀 (Use Frontend for UI)');
+    res.send('India Jagran Backend is Running Successfully! 🚀');
 });
 
-// --- 8. Global Error Handling Middleware ---
+// --- Global Error Handling ---
 app.use((err, req, res, next) => {
     logger.error(err.message); 
     console.error(err); 
@@ -183,7 +138,4 @@ app.use((err, req, res, next) => {
 });
 
 // --- Start Server ---
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    logger.info(`Server running on port ${PORT}`);
-});
+app.listen(PORT, () => logger.info(`Server running on port ${PORT}`));
