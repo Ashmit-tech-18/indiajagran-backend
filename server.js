@@ -119,7 +119,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ===========================================================================
-// 🔥 MAGIC ROUTE: WhatsApp/Facebook Preview Fix (UNCHANGED) 🔥
+// 🔥 MAGIC ROUTE: WhatsApp/Facebook Preview Fix (CANONICAL ADDED) 🔥
 // ===========================================================================
 app.get('/article/:slug', async (req, res, next) => {
     // ... [No changes made to this route] ...
@@ -147,6 +147,9 @@ app.get('/article/:slug', async (req, res, next) => {
         }
 
         const frontendUrl = `https://indiajagran.com/article/${slug}`;
+        
+        // 🔥 NEW: Define Canonical URL for SEO Fix
+        const canonicalUrl = `https://www.indiajagran.com/article/${slug}`;
 
         // Agar Bot hai -> HTML bhejo (Preview ke liye)
         if (isBot) {
@@ -161,6 +164,9 @@ app.get('/article/:slug', async (req, res, next) => {
                     <meta property="og:image" content="${image}" />
                     <meta property="og:url" content="${frontendUrl}" />
                     <meta property="og:site_name" content="India Jagran" />
+                    
+                    <link rel="canonical" href="${canonicalUrl}" /> 
+                    
                     <meta name="twitter:card" content="summary_large_image" />
                     <meta name="twitter:title" content="${title}" />
                     <meta name="twitter:image" content="${image}" />
