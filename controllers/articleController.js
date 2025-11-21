@@ -114,7 +114,7 @@ const getArticles = async (req, res) => {
 };
 
 // ---------------------------------------------------------
-// SMART HOME FEED (🔥 FIXED: Main Story Exception + Strict Separation)
+// SMART HOME FEED (🔥 FINAL FIX: Main Story Exception + Strict Filtering)
 // ---------------------------------------------------------
 const getHomeFeed = async (req, res) => {
     try {
@@ -128,18 +128,23 @@ const getHomeFeed = async (req, res) => {
         let langQuery = {};
 
         if (lang === 'hi') {
-            // Hindi Mode
+            // Hindi Mode: Show if ANY title field has Hindi
             langQuery.$or = [
                 { longHeadline: { $regex: hindiRegex } },
                 { title_en: { $regex: hindiRegex } },
-                { shortHeadline: { $regex: hindiRegex } }
+                { shortHeadline: { $regex: hindiRegex } },
+                { title: { $regex: hindiRegex } } // Legacy check included
             ];
         } else {
-            // English Strict Mode
+            // 🔥 ENGLISH STRICT MODE
+            // Check ALL title fields to ensure NO Hindi characters exist
             langQuery.$and = [
                 { longHeadline: { $not: { $regex: hindiRegex } } },
                 { title_en: { $not: { $regex: hindiRegex } } },
-                { shortHeadline: { $not: { $regex: hindiRegex } } }
+                { shortHeadline: { $not: { $regex: hindiRegex } } },
+                
+                // ✅ CRITICAL FIX: Legacy title bhi Hindi nahi hona chahiye
+                { title: { $not: { $regex: hindiRegex } } } 
             ];
         }
 
@@ -147,25 +152,27 @@ const getHomeFeed = async (req, res) => {
         const baseStatusQuery = { $or: [{ status: 'published' }, { status: { $exists: false } }] };
 
         // 🔥 1. MAIN STORY (Top 1) - Content Allowed (Exception)
+        // Isme humne '.select' me content ko minus (-) nahi kiya hai.
         queries.push(
              Article.find({ 
                  $and: [ baseStatusQuery, langQuery ] 
              })
             .sort({ createdAt: -1 })
-            .limit(1)
-            .select('-keywords') // Keywords hatao, lekin CONTENT aur SUMMARY aane do
+            .limit(1) // Sirf pehla article
+            .select('-keywords') // Sirf keywords hatao, CONTENT aur SUMMARY aane do
             .lean()
         );
 
-        // 🔥 2. REMAINING LATEST (Next 19) - Optimized (No Content, but Summary is KEPT)
+        // 🔥 2. REMAINING LATEST (Next 19) - Optimized (No Content)
+        // Content hata diya gaya hai speed ke liye, lekin Summary aayegi
         queries.push(
              Article.find({ 
                  $and: [ baseStatusQuery, langQuery ] 
              })
             .sort({ createdAt: -1 })
-            .skip(1)
+            .skip(1)  // Pehla wala skip karo (kyunki wo upar le liya)
             .limit(19)
-            .select('-content_en -content_hi -keywords') // Content hatao, Summary apne aap aayegi
+            .select('-content_en -content_hi -keywords') // Content Excluded
             .lean()
         );
 
@@ -189,7 +196,7 @@ const getHomeFeed = async (req, res) => {
                 })
                 .sort({ createdAt: -1 })
                 .limit(6)
-                .select('-content_en -content_hi -keywords') // Content hatao, Summary aayegi
+                .select('-content_en -content_hi -keywords') // Content Excluded
                 .lean()
             );
         });
