@@ -112,6 +112,14 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+// =======================================================================
+// 🟢 PHASE 1: KEEP-ALIVE PING ROUTE (Server ko sone se rokne ke liye)
+// =======================================================================
+app.get('/ping', (req, res) => {
+    res.status(200).send('Pong - Server is Awake!');
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
