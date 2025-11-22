@@ -6,7 +6,8 @@ const cron = require('node-cron');
 const path = require('path');
 
 // --- Controllers & Models ---
-const { generateSitemap } = require('./controllers/articleController'); 
+// 🔥 UPDATE: 'runGNewsAutoFetch' ko import kiya gaya hai (Baki sab same hai)
+const { generateSitemap, runGNewsAutoFetch } = require('./controllers/articleController'); 
 const Article = require('./models/Article'); 
 
 // --- Optimization & Logging ---
@@ -20,34 +21,26 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // =======================================================================
-// 🔥 FINAL FIX: SITEMAP ROUTE (Route Match + Safe Logic) 🔥
+// 🔥 FINAL FIX: SITEMAP ROUTE (Unchanged)
 // =======================================================================
-// ✅ Note: Vercel से आने वाला ट्रैफिक '/api/articles/sitemap' पर ही आएगा।
 app.get('/api/articles/sitemap', async (req, res) => {
     logger.info("Sitemap generation request received.");
     
     try {
-        // Articles fetch, सिर्फ़ ज़रूरी फ़ील्ड्स
         const articles = await Article.find({}, 'slug updatedAt createdAt');
-        
-        // Environment Variable का उपयोग करें
         const baseUrl = process.env.FRONTEND_URL || 'https://www.indiajagran.com';
         
         let sitemap = '<?xml version="1.0" encoding="UTF-8"?>';
         sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
 
-        // Static URLs
         sitemap += `
             <url><loc>${baseUrl}/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
             <url><loc>${baseUrl}/about</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
             <url><loc>${baseUrl}/contact</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
         `;
 
-        // Dynamic URLs
         articles.forEach(article => {
-            // UpdatedAt को प्रेफ़रेंस, अगर नहीं तो current time
             let dateString = article.updatedAt ? new Date(article.updatedAt).toISOString() : new Date().toISOString(); 
-            
             if (article.slug) {
                 sitemap += `
                 <url>
@@ -67,33 +60,20 @@ app.get('/api/articles/sitemap', async (req, res) => {
 
     } catch (e) {
         logger.error("SITEMAP ROUTE CRASH:", e);
-        // अगर क्रैश हुआ तो logs में स्पष्ट Error आएगा
         res.status(500).send("Sitemap generation failed due to server error.");
     }
 });
-// =======================================================================
-
 
 // --- Middleware ---
 app.use(compression());
-app.use(
-    morgan('dev', {
-        stream: {
-            write: (message) => logger.info(message.trim())
-        }
-    })
-);
+app.use(morgan('dev', { stream: { write: (message) => logger.info(message.trim()) } }));
 
 // =======================================================================
-// 🔒 FINAL CORS CONFIGURATION (Dynamic - Allows www & non-www)
+// 🔒 FINAL CORS CONFIGURATION (Unchanged)
 // =======================================================================
 app.use(cors({
     origin: function (origin, callback) {
-        // Mobile apps ya curl requests ke paas origin nahi hota, unhe allow karein
         if (!origin) return callback(null, true);
-        
-        // Allow all domains (Safe for public news site)
-        // Isse www aur non-www dono chalenge bina error ke
         return callback(null, true);
     },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'OPTIONS', 'DELETE'],
@@ -102,7 +82,7 @@ app.use(cors({
 }));
 
 // =======================================================================
-// 🟢 PHASE 1: KEEP-ALIVE PING ROUTE (Server ko sone se rokne ke liye)
+// 🟢 PHASE 1: KEEP-ALIVE PING ROUTE (Unchanged)
 // =======================================================================
 app.get('/ping', (req, res) => {
     res.status(200).send('Pong - Server is Awake!');
@@ -114,33 +94,40 @@ app.use(express.urlencoded({ extended: true }));
 // --- Static Files ---
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+
+// =======================================================================
+// 🧪 TEST ROUTE: Force GNews Update (Isse browser me khol kar check karein)
+// =======================================================================
+app.get('/api/force-update-news', async (req, res) => {
+    try {
+        console.log("Manually triggering GNews Fetch...");
+        await runGNewsAutoFetch(); // Ye function call karega
+        res.send("✅ GNews Fetch Triggered Successfully! Check Render Logs for details.");
+    } catch (error) {
+        console.error("Manual Update Failed:", error);
+        res.status(500).send(`Update Failed: ${error.message}`);
+    }
+});
+
 // ===========================================================================
-// 🔥 MAGIC ROUTE: Fixed for Language + Image Preview + Loop Break 🔥
+// 🔥 MAGIC ROUTE: Fixed for Language + Image Preview + Loop Break (Unchanged)
 // ===========================================================================
 app.get('/article/:slug', async (req, res, next) => {
     
     const userAgent = req.headers['user-agent'] || '';
-    
-    // 1. Clean Slug for DB Query (Ignore ?lang=hi, ?r=1 etc.)
     const cleanSlug = req.params.slug; 
-
-    // 2. Prepare Query Params for Redirect (Preserve lang=hi, add r=1)
     const queryParams = new URLSearchParams(req.query);
-    // Magic parameter add karo loop todne ke liye
     queryParams.set('r', '1'); 
     
-    // Bots Detection (WhatsApp, FB, Twitter, etc.)
     const isBot = /facebookexternalhit|twitterbot|whatsapp|linkedinbot|telegrambot/i.test(userAgent);
 
     try {
         const article = await Article.findOne({ slug: cleanSlug });
 
         if (!article) {
-            // Bot ko 404, Insaan ko Home
             return isBot ? res.status(404).send('Article not found') : res.redirect('https://indiajagran.com');
         }
 
-        // Data Prepare
         const title = article.longHeadline || article.title || 'India Jagran';
         const summary = (article.summary || article.content || '').replace(/<[^>]*>?/gm, '').substring(0, 160) + '...';
         
@@ -151,7 +138,6 @@ app.get('/article/:slug', async (req, res, next) => {
             image = `${baseUrl}${image.startsWith('/') ? '' : '/'}${image}`;
         }
 
-        // Final URLs
         const frontendUrl = `${baseUrl}/article/${cleanSlug}?${queryParams.toString()}`;
         const canonicalUrl = `${baseUrl}/article/${cleanSlug}`;
 
@@ -167,9 +153,7 @@ app.get('/article/:slug', async (req, res, next) => {
                     <meta property="og:image" content="${image}" />
                     <meta property="og:url" content="${canonicalUrl}" />
                     <meta property="og:site_name" content="India Jagran" />
-                    
                     <link rel="canonical" href="${canonicalUrl}" /> 
-                    
                     <meta name="twitter:card" content="summary_large_image" />
                     <meta name="twitter:title" content="${title}" />
                     <meta name="twitter:image" content="${image}" />
@@ -179,8 +163,6 @@ app.get('/article/:slug', async (req, res, next) => {
             `;
             return res.send(html);
         }
-
-        // Agar Insaan hai -> Redirect with ALL params (r=1 + lang=hi)
         return res.redirect(frontendUrl);
 
     } catch (error) {
@@ -190,7 +172,7 @@ app.get('/article/:slug', async (req, res, next) => {
 });
 
 
-// --- API Routes (UNCHANGED - As per your original structure) ---
+// --- API Routes (Unchanged) ---
 const authRoutes = require('./routes/auth');
 const articleRoutes = require('./routes/articles');
 const contactRoutes = require('./routes/contact');
@@ -203,7 +185,6 @@ app.use('/api/contact', contactRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/subscriber', subscriberRoutes);
 
-
 // --- Error Handling ---
 app.use((err, req, res, next) => {
     logger.error(err.message);
@@ -211,7 +192,7 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: 'Server Error', error: err.message });
 });
 
-// --- Database Connection (Safe Check) ---
+// --- Database Connection ---
 const dbModule = require('./config/db');
 let connectDB;
 if (typeof dbModule === 'function') connectDB = dbModule;
@@ -219,7 +200,11 @@ else if (dbModule && typeof dbModule.connectDB === 'function') connectDB = dbMod
 
 if (connectDB) connectDB();
 
-// --- Cron Jobs ---
+// =======================================================================
+// ⏰ CRON JOBS (Scheduled Tasks)
+// =======================================================================
+
+// 1. Publish Scheduled Articles (Runs every minute) - Unchanged
 cron.schedule('*/1 * * * *', async () => {
     try {
         const now = new Date();
@@ -230,6 +215,19 @@ cron.schedule('*/1 * * * *', async () => {
         if (result.modifiedCount > 0) logger.info(`Published ${result.modifiedCount} scheduled articles.`);
     } catch (error) {
         logger.error('Error publishing scheduled articles:', error);
+    }
+});
+
+// 2. 🔥 NEW UPDATE: Fetch GNews Articles (Runs every 4 hours)
+// '0 */4 * * *' ka matlab hai: Har 4 ghante par (4:00, 8:00, 12:00...)
+// Isse API limit cross nahi hogi aur news update hoti rahegi.
+cron.schedule('0 */4 * * *', async () => {
+    try {
+        logger.info('⏰ Starting GNews Auto Fetch...');
+        await runGNewsAutoFetch();
+        logger.info('✅ GNews Auto Fetch Complete.');
+    } catch (error) {
+        logger.error('❌ GNews Auto Fetch Failed:', error);
     }
 });
 

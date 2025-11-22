@@ -3562,3 +3562,46 @@
 {"level":"info","message":"\u001b[0mGET /api/articles/category/national?lang=en \u001b[36m304\u001b[0m 321.090 ms - -\u001b[0m","timestamp":"2025-11-21T10:12:07.325Z"}
 {"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m204\u001b[0m 0.174 ms - 0\u001b[0m","timestamp":"2025-11-21T10:12:08.194Z"}
 {"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 1923.301 ms - -\u001b[0m","timestamp":"2025-11-21T10:12:10.287Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-22T12:05:59.934Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m204\u001b[0m 13.166 ms - 0\u001b[0m","timestamp":"2025-11-22T12:06:16.907Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 1607.760 ms - -\u001b[0m","timestamp":"2025-11-22T12:06:18.648Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m204\u001b[0m 0.285 ms - 0\u001b[0m","timestamp":"2025-11-22T12:06:29.715Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 1373.348 ms - -\u001b[0m","timestamp":"2025-11-22T12:06:31.632Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/education?lang=en \u001b[32m204\u001b[0m 0.448 ms - 0\u001b[0m","timestamp":"2025-11-22T12:11:07.380Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/education?lang=en \u001b[32m200\u001b[0m 70.227 ms - 756\u001b[0m","timestamp":"2025-11-22T12:11:07.457Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/entertainment?lang=en \u001b[32m204\u001b[0m 0.597 ms - 0\u001b[0m","timestamp":"2025-11-22T12:11:09.332Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/entertainment?lang=en \u001b[32m200\u001b[0m 446.532 ms - -\u001b[0m","timestamp":"2025-11-22T12:11:09.790Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/sports?lang=en \u001b[32m204\u001b[0m 0.221 ms - 0\u001b[0m","timestamp":"2025-11-22T12:11:10.889Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/sports?lang=en \u001b[32m200\u001b[0m 325.353 ms - -\u001b[0m","timestamp":"2025-11-22T12:11:11.223Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/business?lang=en \u001b[32m204\u001b[0m 0.465 ms - 0\u001b[0m","timestamp":"2025-11-22T12:11:12.212Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/business?lang=en \u001b[36m304\u001b[0m 343.567 ms - -\u001b[0m","timestamp":"2025-11-22T12:11:12.559Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/politics?lang=en \u001b[32m204\u001b[0m 0.139 ms - 0\u001b[0m","timestamp":"2025-11-22T12:11:13.443Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/politics?lang=en \u001b[36m304\u001b[0m 281.654 ms - -\u001b[0m","timestamp":"2025-11-22T12:11:13.725Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/world?lang=en \u001b[32m204\u001b[0m 0.154 ms - 0\u001b[0m","timestamp":"2025-11-22T12:11:14.901Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/world?lang=en \u001b[36m304\u001b[0m 353.751 ms - -\u001b[0m","timestamp":"2025-11-22T12:11:15.257Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/national?lang=en \u001b[32m204\u001b[0m 0.253 ms - 0\u001b[0m","timestamp":"2025-11-22T12:11:16.244Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/national?lang=en \u001b[32m200\u001b[0m 319.533 ms - -\u001b[0m","timestamp":"2025-11-22T12:11:16.570Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m204\u001b[0m 0.367 ms - 0\u001b[0m","timestamp":"2025-11-22T12:11:18.245Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 1326.927 ms - -\u001b[0m","timestamp":"2025-11-22T12:11:19.689Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/slug/daily-sun-sign-predictions \u001b[32m204\u001b[0m 0.364 ms - 0\u001b[0m","timestamp":"2025-11-22T12:11:22.626Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/slug/daily-sun-sign-predictions \u001b[32m200\u001b[0m 101.611 ms - 859\u001b[0m","timestamp":"2025-11-22T12:11:22.729Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/top-news?lang=en&exclude=daily-sun-sign-predictions \u001b[32m204\u001b[0m 0.357 ms - 0\u001b[0m","timestamp":"2025-11-22T12:11:22.740Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/top-news?lang=en&exclude=daily-sun-sign-predictions \u001b[32m200\u001b[0m 91.334 ms - -\u001b[0m","timestamp":"2025-11-22T12:11:22.836Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/related?category=Entertainment&slug=daily-sun-sign-predictions&lang=en&limit=6 \u001b[32m204\u001b[0m 0.151 ms - 0\u001b[0m","timestamp":"2025-11-22T12:11:22.844Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/related?category=Entertainment&slug=daily-sun-sign-predictions&lang=en&limit=6 \u001b[32m200\u001b[0m 80.108 ms - -\u001b[0m","timestamp":"2025-11-22T12:11:22.930Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/slug/aries-horoscope-today-for-november-21-2025-steady-progress-is-likely \u001b[32m204\u001b[0m 0.181 ms - 0\u001b[0m","timestamp":"2025-11-22T12:11:28.432Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/slug/aries-horoscope-today-for-november-21-2025-steady-progress-is-likely \u001b[32m200\u001b[0m 85.133 ms - 981\u001b[0m","timestamp":"2025-11-22T12:11:28.521Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/top-news?lang=en&exclude=aries-horoscope-today-for-november-21-2025-steady-progress-is-likely \u001b[32m204\u001b[0m 0.138 ms - 0\u001b[0m","timestamp":"2025-11-22T12:11:28.528Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/top-news?lang=en&exclude=aries-horoscope-today-for-november-21-2025-steady-progress-is-likely \u001b[32m200\u001b[0m 82.539 ms - -\u001b[0m","timestamp":"2025-11-22T12:11:28.615Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/related?category=Entertainment&slug=aries-horoscope-today-for-november-21-2025-steady-progress-is-likely&lang=en&limit=6 \u001b[32m204\u001b[0m 0.129 ms - 0\u001b[0m","timestamp":"2025-11-22T12:11:28.620Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/related?category=Entertainment&slug=aries-horoscope-today-for-november-21-2025-steady-progress-is-likely&lang=en&limit=6 \u001b[32m200\u001b[0m 85.370 ms - -\u001b[0m","timestamp":"2025-11-22T12:11:28.710Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m204\u001b[0m 0.127 ms - 0\u001b[0m","timestamp":"2025-11-22T12:11:33.386Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 1424.162 ms - -\u001b[0m","timestamp":"2025-11-22T12:11:34.932Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m204\u001b[0m 0.326 ms - 0\u001b[0m","timestamp":"2025-11-22T12:14:42.436Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 1691.435 ms - -\u001b[0m","timestamp":"2025-11-22T12:14:44.221Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-22T12:18:11.708Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-22T12:18:26.263Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-22T12:26:08.964Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m204\u001b[0m 4.198 ms - 0\u001b[0m","timestamp":"2025-11-22T12:26:16.478Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 2565.592 ms - -\u001b[0m","timestamp":"2025-11-22T12:26:19.175Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-22T12:29:29.495Z"}
