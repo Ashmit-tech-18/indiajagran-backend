@@ -6,7 +6,6 @@ const cron = require('node-cron');
 const path = require('path');
 
 // --- Controllers & Models ---
-// 🔥 UPDATE: 'runGNewsAutoFetch' ko import kiya gaya hai (Baki sab same hai)
 const { generateSitemap, runGNewsAutoFetch } = require('./controllers/articleController'); 
 const Article = require('./models/Article'); 
 
@@ -20,12 +19,23 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// --- Helper to Optimize Cloudinary Images for Bots ---
+const getOptimizedUrl = (url) => {
+    if (!url) return null;
+    if (url.includes('res.cloudinary.com') && url.includes('/upload/')) {
+        if (!url.includes('q_auto') && !url.includes('f_auto')) {
+            // Optimize: Quality Auto, Format Auto, Width 1200px
+            return url.replace('/upload/', '/upload/q_auto,f_auto,w_1200/');
+        }
+    }
+    return url;
+};
+
 // =======================================================================
-// 🔥 FINAL FIX: SITEMAP ROUTE (Unchanged)
+// SITEMAP ROUTE
 // =======================================================================
 app.get('/api/articles/sitemap', async (req, res) => {
     logger.info("Sitemap generation request received.");
-    
     try {
         const articles = await Article.find({}, 'slug updatedAt createdAt');
         const baseUrl = process.env.FRONTEND_URL || 'https://www.indiajagran.com';
@@ -69,7 +79,7 @@ app.use(compression());
 app.use(morgan('dev', { stream: { write: (message) => logger.info(message.trim()) } }));
 
 // =======================================================================
-// 🔒 FINAL CORS CONFIGURATION (Unchanged)
+// CORS CONFIGURATION
 // =======================================================================
 app.use(cors({
     origin: function (origin, callback) {
@@ -82,7 +92,7 @@ app.use(cors({
 }));
 
 // =======================================================================
-// 🟢 PHASE 1: KEEP-ALIVE PING ROUTE (Unchanged)
+// KEEP-ALIVE PING ROUTE
 // =======================================================================
 app.get('/ping', (req, res) => {
     res.status(200).send('Pong - Server is Awake!');
@@ -110,10 +120,9 @@ app.get('/api/force-update-news', async (req, res) => {
 });
 
 // ===========================================================================
-// 🔥 MAGIC ROUTE: Fixed for Language + Image Preview + Loop Break (Unchanged)
+// MAGIC ROUTE (Updated with Image Optimization)
 // ===========================================================================
 app.get('/article/:slug', async (req, res, next) => {
-    
     const userAgent = req.headers['user-agent'] || '';
     const cleanSlug = req.params.slug; 
     const queryParams = new URLSearchParams(req.query);
@@ -134,9 +143,14 @@ app.get('/article/:slug', async (req, res, next) => {
         const baseUrl = process.env.FRONTEND_URL || 'https://www.indiajagran.com';
         
         let image = article.featuredImage || `${baseUrl}/logo192.png`;
+        
+        // 1. Fix relative paths
         if (image && !image.startsWith('http')) {
             image = `${baseUrl}${image.startsWith('/') ? '' : '/'}${image}`;
         }
+
+        // 2. 🔥 Optimize Image for Bots (Cloudinary)
+        image = getOptimizedUrl(image);
 
         const frontendUrl = `${baseUrl}/article/${cleanSlug}?${queryParams.toString()}`;
         const canonicalUrl = `${baseUrl}/article/${cleanSlug}`;
@@ -164,26 +178,18 @@ app.get('/article/:slug', async (req, res, next) => {
             return res.send(html);
         }
         return res.redirect(frontendUrl);
-
     } catch (error) {
         console.error('Magic Route Error:', error);
         return res.redirect('https://indiajagran.com');
     }
 });
 
-
-// --- API Routes (Unchanged) ---
-const authRoutes = require('./routes/auth');
-const articleRoutes = require('./routes/articles');
-const contactRoutes = require('./routes/contact');
-const analyticsRoutes = require('./routes/analytics');
-const subscriberRoutes = require('./routes/subscribers');
-
-app.use('/api/auth', authRoutes);
-app.use('/api/articles', articleRoutes);
-app.use('/api/contact', contactRoutes);
-app.use('/api/analytics', analyticsRoutes);
-app.use('/api/subscriber', subscriberRoutes);
+// --- API Routes ---
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/articles', require('./routes/articles'));
+app.use('/api/contact', require('./routes/contact'));
+app.use('/api/analytics', require('./routes/analytics'));
+app.use('/api/subscriber', require('./routes/subscribers'));
 
 // --- Error Handling ---
 app.use((err, req, res, next) => {
@@ -200,11 +206,7 @@ else if (dbModule && typeof dbModule.connectDB === 'function') connectDB = dbMod
 
 if (connectDB) connectDB();
 
-// =======================================================================
-// ⏰ CRON JOBS (Scheduled Tasks)
-// =======================================================================
-
-// 1. Publish Scheduled Articles (Runs every minute) - Unchanged
+// --- Cron Jobs ---
 cron.schedule('*/1 * * * *', async () => {
     try {
         const now = new Date();
@@ -218,9 +220,7 @@ cron.schedule('*/1 * * * *', async () => {
     }
 });
 
-// 2. 🔥 NEW UPDATE: Fetch GNews Articles (Runs every 4 hours)
-// '0 */4 * * *' ka matlab hai: Har 4 ghante par (4:00, 8:00, 12:00...)
-// Isse API limit cross nahi hogi aur news update hoti rahegi.
+// GNews Auto Fetch (Every 4 hours)
 cron.schedule('0 */4 * * *', async () => {
     try {
         logger.info('⏰ Starting GNews Auto Fetch...');
