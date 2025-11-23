@@ -1,3 +1,4 @@
+const compression = require('compression');
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
@@ -10,7 +11,6 @@ const { generateSitemap, runGNewsAutoFetch } = require('./controllers/articleCon
 const Article = require('./models/Article'); 
 
 // --- Optimization & Logging ---
-const compression = require('compression');
 const morgan = require('morgan');
 const logger = require('./utils/logger');
 

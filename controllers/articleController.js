@@ -100,20 +100,22 @@ const createArticle = async (req, res) => {
 };
 
 // ---------------------------------------------------------
-// 2. GET ARTICLES (🔥 RESTORED: NO LIMIT, ONLY OPTIMIZATION)
+// 2. GET ARTICLES (🔥 ULTRA-OPTIMIZED MODE)
 // ---------------------------------------------------------
 const getArticles = async (req, res) => {
     try {
-        // 🚨 CRITICAL RESTORE: Removing 'limit' and 'skip'
-        // Frontend needs ALL articles to filter categories locally.
+        // No 'limit' logic (Layout safe)
         
         const articles = await Article.find({ 
             $or: [{ status: 'published' }, { status: { $exists: false } }] 
         })
         .sort({ createdAt: -1 })
-        // ✅ Optimization Kept: We exclude the HEAVY content body.
-        // This reduces size from 1MB -> ~50KB without breaking layout.
-        .select('-content_en -content_hi'); 
+        // 🔥 AGGRESSIVE TRIM: Removing heavy unused fields
+        // - content (HTML Body)
+        // - keywords (Array of strings)
+        // - galleryImages (Array of URLs)
+        // - sourceUrl, kicker, user info, version keys
+        .select('-content_en -content_hi -keywords -galleryImages -sourceUrl -thumbnailCaption -user -__v -kicker'); 
 
         res.json(articles);
     } catch (err) { 
@@ -128,8 +130,9 @@ const getArticles = async (req, res) => {
 const getHomeFeed = async (req, res) => {
     try {
         const categoriesToFetch = [
-            'Sports', 'Business', 'Tech', 'Education', 
-            'Health', 'Environment', 'Opinion', 'National', 'World'
+          'Sports', 'Business', 'Tech', 'Education', 'Tech', 'Environment',
+            'Health', 'Environment', 'Opinion', 'National','Internation', 'World',
+            'Crime', 'Religion'
         ];
         
         const { lang } = req.query; 
@@ -155,18 +158,18 @@ const getHomeFeed = async (req, res) => {
         const queries = [];
         const baseStatusQuery = { $or: [{ status: 'published' }, { status: { $exists: false } }] };
 
-        // 1. MAIN STORY (Content Allowed)
+        // 1. MAIN STORY (Top 1) - Light Opt
         queries.push(
              Article.find({ 
                  $and: [ baseStatusQuery, langQuery ] 
              })
             .sort({ createdAt: -1 })
             .limit(1)
-            .select('-keywords')
+            .select('-keywords -galleryImages -__v') 
             .lean()
         );
 
-        // 2. REMAINING LATEST (Content Excluded)
+        // 2. REMAINING LATEST (Aggressive Opt)
         queries.push(
              Article.find({ 
                  $and: [ baseStatusQuery, langQuery ] 
@@ -174,11 +177,11 @@ const getHomeFeed = async (req, res) => {
             .sort({ createdAt: -1 })
             .skip(1)
             .limit(19)
-            .select('-content_en -content_hi -keywords') 
+            .select('-content_en -content_hi -keywords -galleryImages -user -__v -kicker') 
             .lean()
         );
 
-        // 3. Category Specific
+        // 3. Category Specific (Aggressive Opt)
         categoriesToFetch.forEach(cat => {
             let catQuery = {};
             const key = Object.keys(categoryEquivalents).find(k => 
@@ -197,8 +200,8 @@ const getHomeFeed = async (req, res) => {
                     $and: [ baseStatusQuery, catQuery, langQuery ] 
                 })
                 .sort({ createdAt: -1 })
-                .limit(6)
-                .select('-content_en -content_hi -keywords') 
+                .limit(12)
+                .select('-content_en -content_hi -keywords -galleryImages -user -__v -kicker') 
                 .lean()
             );
         });
@@ -304,11 +307,11 @@ const getArticlesByCategory = async (req, res) => {
             ]
         };
 
-
         let articles = await Article.find(finalQuery)
         .sort({ createdAt: -1 })
         .limit(300)
-        .select('-content_en -content_hi'); 
+        // 🔥 OPTIMIZATION HERE TOO
+        .select('-content_en -content_hi -keywords -galleryImages -user -__v'); 
 
         if (articles.length === 0 && !subcategory && !district && process.env.GNEWS_API_KEY) {
             res.json([]); 
@@ -356,7 +359,7 @@ const getRelatedArticles = async (req, res) => {
         const articles = await Article.find({ $and: queryCriteria })
         .sort({ createdAt: -1 })
         .limit(limitNum)
-        .select('-content_en -content_hi');
+        .select('-content_en -content_hi -keywords -galleryImages');
         res.json(articles);
     } catch (error) { 
         console.error("Related Articles Error:", error);
@@ -397,7 +400,7 @@ const getTopNews = async (req, res) => {
         const articles = await Article.find({ $and: queryCriteria })
         .sort({ createdAt: -1 })
         .limit(6)
-        .select('-content_en -content_hi');
+        .select('-content_en -content_hi -keywords -galleryImages');
         res.status(200).json(articles);
     } catch (error) { 
         console.error("Top News Error:", error);
