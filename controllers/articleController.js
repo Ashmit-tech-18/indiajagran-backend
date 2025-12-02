@@ -543,7 +543,7 @@ const runGNewsAutoFetch = async () => {
 const generateSitemap = async (req, res) => {
     try {
         res.setHeader('Content-Type', 'application/xml');
-        const baseUrl = "https://www.indiajagran.com";
+        const baseUrl = "https://indiajagran.com";
         const today = new Date().toISOString();
         let xmlUrls = [];
         const staticPages = ["", "about", "contact", "privacy-policy", "terms-condition", "subscribe"];
