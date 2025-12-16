@@ -5,9 +5,9 @@ const WebStory = require('../models/WebStory');
 // 1. GET Recent Stories (For Homepage)
 exports.getRecentWebStories = async (req, res) => {
   try {
-    // Sirf Title, Slug aur CoverImage layenge
+    // ✅ UPDATE: 'pages' ko select mein add kiya taaki slides mil sakein
     const stories = await WebStory.find()
-      .select('title slug coverImage createdAt') 
+      .select('title slug coverImage pages createdAt') 
       .sort({ createdAt: -1 }) 
       .limit(10); 
 
@@ -27,7 +27,7 @@ exports.getWebStoryBySlug = async (req, res) => {
       return res.status(404).send('Story Not Found');
     }
 
-    const baseUrl = 'https://indiajagran.com'; // Change this if domain changes
+    const baseUrl = 'https://indiajagran.com'; 
     const storyUrl = `${baseUrl}/web-stories/${story.slug}`;
 
     // AMP HTML Template
@@ -98,7 +98,7 @@ exports.getWebStoryBySlug = async (req, res) => {
   }
 };
 
-// 3. CREATE Story (Admin) - ✅ MAJOR FIXES HERE
+// 3. CREATE Story (Admin)
 exports.createWebStory = async (req, res) => {
   try {
     const { title, slug, coverImage, pages } = req.body;
@@ -131,7 +131,6 @@ exports.createWebStory = async (req, res) => {
 
   } catch (error) {
     console.error("❌ Backend Error Creating Story:", error);
-    // Return the ACTUAL error message to frontend
     res.status(500).json({ message: error.message || 'Server Error creating story' });
   }
 };
@@ -162,17 +161,14 @@ exports.deleteWebStory = async (req, res) => {
 exports.updateWebStory = async (req, res) => {
   try {
     console.log("📥 Updating Story:", req.params.id);
-    
     const updatedStory = await WebStory.findByIdAndUpdate(
       req.params.id,
       req.body,
-      { new: true } // Return updated doc
+      { new: true }
     );
-
     if (!updatedStory) {
         return res.status(404).json({ message: "Story not found to update" });
     }
-
     res.json(updatedStory);
   } catch (error) {
     console.error("❌ Error updating story:", error);
