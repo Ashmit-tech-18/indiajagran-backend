@@ -1,4 +1,5 @@
 const compression = require('compression');
+const storyRoutes = require('./routes/storyRoutes');
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
@@ -160,6 +161,7 @@ app.get('/article/:slug', async (req, res, next) => {
 
 // --- API Routes ---
 app.use('/api', rssRoutes);
+app.use('/web-stories', storyRoutes);
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/articles', require('./routes/articles'));
 app.use('/api/contact', require('./routes/contact'));
