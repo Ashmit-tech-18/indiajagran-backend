@@ -12,6 +12,7 @@
   "license": "ISC",
   "description": "Backend API for India Jagran News Portal",
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "axios": "^1.12.2",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^1.41.3",

@@ -74,10 +74,8 @@ const articleSchema = new mongoose.Schema({
 // ============================================================
 
 // 1. Basic Search Fields (Fast Filtering)
-articleSchema.index({ status: 1 });              // "published" check karne ke liye
 articleSchema.index({ category: 1 });            // Category filtering ke liye
 articleSchema.index({ subcategory: 1 });         // Sub-category ke liye
-articleSchema.index({ slug: 1 });                // Slug se article dhundhne ke liye
 articleSchema.index({ createdAt: -1 });          // Sorting (Latest First) ke liye
 
 // 2. Compound Indexes (Mixed Queries)

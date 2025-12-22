@@ -2,6 +2,9 @@
 
 const Article = require('../models/Article');
 const axios = require('axios');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+// अपनी .env फाइल में GEMINI_API_KEY जरूर डाल दें
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // --- Helper functions ---
 const createSlug = (title) => {
@@ -472,12 +475,16 @@ const updateArticleStatus = async (req, res) => { try { const { status } = req.b
 const updateArticle = async (req, res) => { try { let updateData = { ...req.body }; if (req.file && req.file.path) { updateData.featuredImage = req.file.path; } let article = await Article.findById(req.params.id); if (!article) return res.status(404).json({ msg: 'Article not found' }); article = await Article.findByIdAndUpdate(req.params.id, { $set: updateData }, { new: true }); res.json(article); } catch (err) { res.status(500).send('Server Error'); } };
 const deleteArticle = async (req, res) => { try { await Article.findByIdAndDelete(req.params.id); res.json({ msg: 'Article removed' }); } catch (err) { res.status(500).send('Server Error'); } };
 
+// ---------------------------------------------------------
+// 🔥 AI-POWERED NEWS FETCHER (Human-Like Writing)
+// ---------------------------------------------------------
 const fetchAndStoreNewsForCategory = async (category) => {
     let newArticlesCount = 0;
     try {
         const categoryForQuery = category.toLowerCase();
         let apiTopic = categoryForQuery;
         const validTopics = ['world', 'nation', 'business', 'technology', 'entertainment', 'sports', 'science', 'health'];
+        
         if (['national', 'politics'].includes(apiTopic)) {
             apiTopic = 'nation';
         } else if (!validTopics.includes(apiTopic)) {
@@ -491,39 +498,92 @@ const fetchAndStoreNewsForCategory = async (category) => {
             token: process.env.GNEWS_API_KEY 
         };
 
+        // 1. Fetch from GNews
         const newsApiResponse = await axios.get(`https://gnews.io/api/v4/top-headlines`, { params: apiParams });
         const fetchedArticles = newsApiResponse.data.articles;
 
+        // 2. Initialize Gemini Model (Fast & Efficient)
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
         for (const articleData of fetchedArticles) {
-            const newSlug = createSlug(articleData.title);
-            const existingArticle = await Article.findOne({ slug: newSlug });
+            // Check for duplicates first to save AI credits
+            const rawSlug = createSlug(articleData.title);
+            const existingArticle = await Article.findOne({ 
+                $or: [{ slug: rawSlug }, { sourceUrl: articleData.url }] 
+            });
 
             if (!existingArticle && articleData.image && articleData.description) {
-                const newArticle = new Article({
-                    title_en: articleData.title, 
-                    content_en: articleData.description,
-                    urlHeadline: newSlug, 
-                    slug: newSlug,
-                    category: formatTitle(category),
-                    author: articleData.source.name || 'GNews',
-                    sourceUrl: articleData.url,
-                    featuredImage: articleData.image,
-                    thumbnailCaption: '',
-                    galleryImages: [],
-                    status: 'published', 
-                    createdAt: new Date(articleData.publishedAt),
-                });
+                
+                // --- 🤖 AI MAGIC STARTS HERE ---
+                try {
+                    const prompt = `
+                        Act as a professional senior journalist for 'India Jagran'. 
+                        Rewrite the following news story into a unique, engaging, and SEO-optimized article.
+                        
+                        Original Title: ${articleData.title}
+                        Original Context: ${articleData.description} ${articleData.content || ''}
+                        
+                        Requirements:
+                        1. Headline: Catchy, click-worthy, but factual (max 15 words).
+                        2. Summary: A concise 60-word summary.
+                        3. Body: Write a detailed news report (300-400 words) in human-like tone. Use simple HTML tags (<p>, <h3>, <ul>) for formatting. Do NOT use markdown code blocks.
+                        4. Keywords: List 5-8 trending SEO keywords relevant to this topic.
+                        
+                        Output format: STRICT JSON object with keys: "headline", "summary", "body", "keywords".
+                    `;
 
-                await newArticle.save();
-                newArticlesCount++;
+                    const result = await model.generateContent(prompt);
+                    const response = await result.response;
+                    const text = response.text();
+
+                    // Clean JSON string (sometimes AI adds markdown backticks)
+                    const jsonString = text.replace(/```json|```/g, '').trim();
+                    const aiData = JSON.parse(jsonString);
+
+                    // Create New Unique Slug from AI Headline
+                    const newUniqueSlug = createSlug(aiData.headline);
+
+                    const newArticle = new Article({
+                        // AI Generated Fields
+                        title_en: articleData.title, // Keep original title for reference or fallback
+                        longHeadline: aiData.headline, // AI Catchy Headline
+                        urlHeadline: newUniqueSlug,
+                        slug: newUniqueSlug,
+                        
+                        summary_en: aiData.summary,
+                        content_en: aiData.body, // The Human-like AI written content
+                        keywords: aiData.keywords,
+                        
+                        // Meta Fields
+                        category: formatTitle(category),
+                        author: 'India Jagran', // Now it's your content!
+                        sourceUrl: articleData.url, // Keep source for internal reference, but hide from frontend if needed
+                        featuredImage: articleData.image,
+                        thumbnailCaption: aiData.headline,
+                        galleryImages: [],
+                        
+                        status: 'published', // Direct Publish because AI rewrote it!
+                        createdAt: new Date(articleData.publishedAt),
+                    });
+
+                    await newArticle.save();
+                    newArticlesCount++;
+                    console.log(`[AI-Writer] Published: ${aiData.headline}`);
+
+                } catch (aiError) {
+                    console.error(`[AI-Error] Skipped article "${articleData.title}":`, aiError.message);
+                    // Agar AI fail ho jaye toh article skip kar dein (Risk nahi lene ka)
+                    continue; 
+                }
             }
         }
+
         if (newArticlesCount > 0) {
-            console.log(`[Auto-Fetch] Saved ${newArticlesCount} new articles for ${category}`);
+            console.log(`[Auto-Fetch] Successfully AI-rewrote & saved ${newArticlesCount} articles for ${category}`);
         }
 
     } catch (err) {
-        console.error(`[Auto-Fetch] Error fetching for ${category}:`, err.message);
+        console.error(`[Auto-Fetch] Error processing ${category}:`, err.message);
     }
 };
 
