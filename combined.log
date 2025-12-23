@@ -4327,3 +4327,53 @@
 {"level":"info","message":"\u001b[0mGET /favicon.ico \u001b[33m404\u001b[0m 0.755 ms - 150\u001b[0m","timestamp":"2025-12-22T09:59:50.152Z"}
 {"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 0.138 ms - 0\u001b[0m","timestamp":"2025-12-22T10:04:05.584Z"}
 {"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[32m200\u001b[0m 719.943 ms - -\u001b[0m","timestamp":"2025-12-22T10:04:06.312Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-12-23T06:46:55.671Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 2.786 ms - 0\u001b[0m","timestamp":"2025-12-23T06:47:12.307Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[32m200\u001b[0m 892.833 ms - -\u001b[0m","timestamp":"2025-12-23T06:47:13.217Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 0.535 ms - 0\u001b[0m","timestamp":"2025-12-23T06:47:24.047Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[32m200\u001b[0m 649.189 ms - -\u001b[0m","timestamp":"2025-12-23T06:47:24.712Z"}
+{"level":"info","message":"\u001b[0mGET /api/force-update-news \u001b[32m200\u001b[0m 1.297 ms - 71\u001b[0m","timestamp":"2025-12-23T06:48:55.107Z"}
+{"level":"info","message":"\u001b[0mGET /favicon.ico \u001b[33m404\u001b[0m 5.715 ms - 150\u001b[0m","timestamp":"2025-12-23T06:48:57.451Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-12-23T06:52:26.630Z"}
+{"level":"info","message":"\u001b[0mGET /api/force-update-news \u001b[36m304\u001b[0m 9.808 ms - -\u001b[0m","timestamp":"2025-12-23T06:53:01.082Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-12-23T06:57:36.125Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 4.362 ms - 0\u001b[0m","timestamp":"2025-12-23T06:57:42.863Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[36m304\u001b[0m 905.259 ms - -\u001b[0m","timestamp":"2025-12-23T06:57:43.776Z"}
+{"level":"info","message":"\u001b[0mGET /api/force-update-news \u001b[36m304\u001b[0m 2.505 ms - -\u001b[0m","timestamp":"2025-12-23T06:58:19.890Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 0.518 ms - 0\u001b[0m","timestamp":"2025-12-23T07:03:09.120Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[36m304\u001b[0m 797.967 ms - -\u001b[0m","timestamp":"2025-12-23T07:03:09.923Z"}
+{"level":"info","message":"\u001b[0mGET /api/force-update-news \u001b[36m304\u001b[0m 1.237 ms - -\u001b[0m","timestamp":"2025-12-23T07:03:22.559Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-12-23T07:06:29.515Z"}
+{"level":"info","message":"\u001b[0mGET /api/force-update-news \u001b[32m200\u001b[0m 5.164 ms - 71\u001b[0m","timestamp":"2025-12-23T07:06:29.663Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 1.274 ms - 0\u001b[0m","timestamp":"2025-12-23T07:52:43.976Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[32m200\u001b[0m 1403.705 ms - -\u001b[0m","timestamp":"2025-12-23T07:52:45.399Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 0.410 ms - 0\u001b[0m","timestamp":"2025-12-23T07:56:33.444Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[36m304\u001b[0m 842.264 ms - -\u001b[0m","timestamp":"2025-12-23T07:56:34.292Z"}
+{"level":"info","message":"\u001b[0mGET /api/force-update-news \u001b[36m304\u001b[0m 1.165 ms - -\u001b[0m","timestamp":"2025-12-23T07:56:38.873Z"}
+{"level":"info","message":"\u001b[0mGET /favicon.ico \u001b[33m404\u001b[0m 5.701 ms - 150\u001b[0m","timestamp":"2025-12-23T07:56:41.340Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 0.420 ms - 0\u001b[0m","timestamp":"2025-12-23T08:00:35.764Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[36m304\u001b[0m 752.750 ms - -\u001b[0m","timestamp":"2025-12-23T08:00:36.522Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 0.418 ms - 0\u001b[0m","timestamp":"2025-12-23T08:01:56.876Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[32m200\u001b[0m 689.725 ms - -\u001b[0m","timestamp":"2025-12-23T08:01:57.580Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 0.425 ms - 0\u001b[0m","timestamp":"2025-12-23T08:02:03.665Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[36m304\u001b[0m 542.043 ms - -\u001b[0m","timestamp":"2025-12-23T08:02:04.211Z"}
+{"level":"info","message":"\u001b[0mGET /api/force-update-news \u001b[36m304\u001b[0m 0.775 ms - -\u001b[0m","timestamp":"2025-12-23T08:02:11.111Z"}
+{"level":"info","message":"\u001b[0mGET /favicon.ico \u001b[33m404\u001b[0m 3.862 ms - 150\u001b[0m","timestamp":"2025-12-23T08:02:13.786Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-12-23T08:03:38.781Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 4.586 ms - 0\u001b[0m","timestamp":"2025-12-23T08:04:04.877Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[36m304\u001b[0m 914.339 ms - -\u001b[0m","timestamp":"2025-12-23T08:04:05.805Z"}
+{"level":"info","message":"\u001b[0mGET /api/force-update-news \u001b[32m200\u001b[0m 4639.276 ms - 70\u001b[0m","timestamp":"2025-12-23T08:04:11.514Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 0.160 ms - 0\u001b[0m","timestamp":"2025-12-23T08:04:29.653Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[32m200\u001b[0m 610.855 ms - -\u001b[0m","timestamp":"2025-12-23T08:04:30.273Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=hi \u001b[32m204\u001b[0m 0.123 ms - 0\u001b[0m","timestamp":"2025-12-23T08:07:59.345Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=hi \u001b[32m200\u001b[0m 691.088 ms - -\u001b[0m","timestamp":"2025-12-23T08:08:00.063Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/slug/modern-tech-employment-drones-iot-cybersecurity \u001b[32m204\u001b[0m 0.189 ms - 0\u001b[0m","timestamp":"2025-12-23T08:08:15.329Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/slug/modern-tech-employment-drones-iot-cybersecurity \u001b[32m200\u001b[0m 147.157 ms - -\u001b[0m","timestamp":"2025-12-23T08:08:15.485Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/top-news?lang=hi&exclude=modern-tech-employment-drones-iot-cybersecurity \u001b[32m204\u001b[0m 0.482 ms - 0\u001b[0m","timestamp":"2025-12-23T08:08:15.502Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/top-news?lang=hi&exclude=modern-tech-employment-drones-iot-cybersecurity \u001b[32m200\u001b[0m 62.216 ms - -\u001b[0m","timestamp":"2025-12-23T08:08:15.572Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/related?category=National&slug=modern-tech-employment-drones-iot-cybersecurity&lang=hi&limit=6 \u001b[32m204\u001b[0m 0.250 ms - 0\u001b[0m","timestamp":"2025-12-23T08:08:15.578Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/related?category=National&slug=modern-tech-employment-drones-iot-cybersecurity&lang=hi&limit=6 \u001b[32m200\u001b[0m 58.950 ms - -\u001b[0m","timestamp":"2025-12-23T08:08:15.644Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 0.079 ms - 0\u001b[0m","timestamp":"2025-12-23T08:10:39.711Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[36m304\u001b[0m 555.753 ms - -\u001b[0m","timestamp":"2025-12-23T08:10:40.269Z"}
+{"level":"info","message":"\u001b[0mGET /api/force-update-news \u001b[36m304\u001b[0m 4107.662 ms - -\u001b[0m","timestamp":"2025-12-23T08:10:45.115Z"}
+{"level":"info","message":"\u001b[0mGET /favicon.ico \u001b[33m404\u001b[0m 4.084 ms - 150\u001b[0m","timestamp":"2025-12-23T08:10:46.393Z"}

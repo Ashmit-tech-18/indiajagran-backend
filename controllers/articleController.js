@@ -2,9 +2,6 @@
 
 const Article = require('../models/Article');
 const axios = require('axios');
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-// अपनी .env फाइल में GEMINI_API_KEY जरूर डाल दें
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // --- Helper functions ---
 const createSlug = (title) => {
@@ -18,12 +15,10 @@ const formatTitle = (text = '') => {
 
 const createSmartRegex = (text) => {
     if (!text) return new RegExp(".*"); 
-    // Special characters ko escape karein
     const escapedText = text.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     return new RegExp(`^\\s*${escapedText}\\s*$`, 'i');
 };
 
-// 🔥 BULLETPROOF HINDI REGEX GENERATOR
 const getHindiRegex = () => {
     const startChar = String.fromCharCode(0x0900); // Devanagari Start
     const endChar = String.fromCharCode(0x097F);   // Devanagari End
@@ -104,21 +99,14 @@ const createArticle = async (req, res) => {
 };
 
 // ---------------------------------------------------------
-// 2. GET ARTICLES (🔥 ULTRA-OPTIMIZED MODE)
+// 2. GET ARTICLES (Optimized)
 // ---------------------------------------------------------
 const getArticles = async (req, res) => {
     try {
-        // No 'limit' logic (Layout safe)
-        
         const articles = await Article.find({ 
             $or: [{ status: 'published' }, { status: { $exists: false } }] 
         })
         .sort({ createdAt: -1 })
-        // 🔥 AGGRESSIVE TRIM: Removing heavy unused fields
-        // - content (HTML Body)
-        // - keywords (Array of strings)
-        // - galleryImages (Array of URLs)
-        // - sourceUrl, kicker, user info, version keys
         .select('-content_en -content_hi -keywords -galleryImages -sourceUrl -thumbnailCaption -user -__v'); 
 
         res.json(articles);
@@ -162,7 +150,7 @@ const getHomeFeed = async (req, res) => {
         const queries = [];
         const baseStatusQuery = { $or: [{ status: 'published' }, { status: { $exists: false } }] };
 
-        // 1. MAIN STORY (Top 1) - Light Opt
+        // 1. MAIN STORY (Top 1)
         queries.push(
              Article.find({ 
                  $and: [ baseStatusQuery, langQuery ] 
@@ -173,7 +161,7 @@ const getHomeFeed = async (req, res) => {
             .lean()
         );
 
-        // 2. REMAINING LATEST (Aggressive Opt)
+        // 2. REMAINING LATEST
         queries.push(
              Article.find({ 
                  $and: [ baseStatusQuery, langQuery ] 
@@ -185,7 +173,7 @@ const getHomeFeed = async (req, res) => {
             .lean()
         );
 
-        // 3. Category Specific (Aggressive Opt)
+        // 3. Category Specific
         categoriesToFetch.forEach(cat => {
             let catQuery = {};
             const key = Object.keys(categoryEquivalents).find(k => 
@@ -196,7 +184,6 @@ const getHomeFeed = async (req, res) => {
                 const names = categoryEquivalents[key];
                 const regexList = names.map(name => createSmartRegex(name));
                 
-                // 🔥 FIX: Ab ye Category YA Subcategory dono me check karega
                 catQuery = {
                     $or: [
                         { category: { $in: regexList } },
@@ -293,8 +280,6 @@ const getArticlesByCategory = async (req, res) => {
             if (categoryKey) {
                 const names = categoryEquivalents[categoryKey];
                 const regexList = names.map(name => createSmartRegex(name));
-                
-                // 🔥 FIX: Check both Category AND Subcategory columns
                 catFilter.$or = [
                     { category: { $in: regexList } },
                     { subcategory: { $in: regexList } }
@@ -306,7 +291,6 @@ const getArticlesByCategory = async (req, res) => {
                     { subcategory: regex }
                 ];
             }
-            
             if (subcategory) catFilter.subcategory = createSmartRegex(subcategory.replace(/-/g, ' '));
             if (district) catFilter.district = createSmartRegex(district.replace(/-/g, ' '));
         }
@@ -339,7 +323,6 @@ const getArticlesByCategory = async (req, res) => {
         let articles = await Article.find(finalQuery)
         .sort({ createdAt: -1 })
         .limit(300)
-        // 🔥 OPTIMIZATION HERE TOO
         .select('-content_en -content_hi -keywords -galleryImages -user -__v'); 
 
         if (articles.length === 0 && !subcategory && !district && process.env.GNEWS_API_KEY) {
@@ -358,7 +341,6 @@ const getRelatedArticles = async (req, res) => {
     try {
         const { category, slug, lang, limit } = req.query;
         const limitNum = limit ? parseInt(limit) : 6; 
-        
         const hindiRegex = getHindiRegex();
         
         let queryCriteria = [
@@ -399,13 +381,11 @@ const getRelatedArticles = async (req, res) => {
 const getTopNews = async (req, res) => {
     try {
         const { lang, exclude } = req.query; 
-        
         let queryCriteria = [{ status: 'published' }];
         
         if (exclude) {
             queryCriteria.push({ slug: { $ne: exclude } });
         }
-        
         const hindiRegex = getHindiRegex();
 
         if (lang === 'hi') {
@@ -476,133 +456,129 @@ const updateArticle = async (req, res) => { try { let updateData = { ...req.body
 const deleteArticle = async (req, res) => { try { await Article.findByIdAndDelete(req.params.id); res.json({ msg: 'Article removed' }); } catch (err) { res.status(500).send('Server Error'); } };
 
 // ---------------------------------------------------------
-// 🔥 AI-POWERED NEWS FETCHER (Human-Like Writing)
+// 🔥 NEWS FETCHER (DIRECT - NO AI)
 // ---------------------------------------------------------
+
 const fetchAndStoreNewsForCategory = async (category) => {
     let newArticlesCount = 0;
+    console.log(`[Auto-Fetch] Processing category: ${category}`);
+
     try {
         const categoryForQuery = category.toLowerCase();
         let apiTopic = categoryForQuery;
         const validTopics = ['world', 'nation', 'business', 'technology', 'entertainment', 'sports', 'science', 'health'];
         
-        if (['national', 'politics'].includes(apiTopic)) {
-            apiTopic = 'nation';
-        } else if (!validTopics.includes(apiTopic)) {
-            return; 
-        }
+        if (['national', 'politics', 'india'].includes(apiTopic)) apiTopic = 'nation';
+        else if (['tech', 'gadgets'].includes(apiTopic)) apiTopic = 'technology';
+        else if (!validTopics.includes(apiTopic)) apiTopic = null; // Use search query instead
 
-        const apiParams = {
-            lang: 'en',
-            country: 'in',
-            topic: apiTopic,
-            token: process.env.GNEWS_API_KEY 
-        };
+        if (!process.env.GNEWS_API_KEY) {
+            console.log("❌ Missing GNEWS_API_KEY");
+            return;
+        }
 
         // 1. Fetch from GNews
-        const newsApiResponse = await axios.get(`https://gnews.io/api/v4/top-headlines`, { params: apiParams });
-        const fetchedArticles = newsApiResponse.data.articles;
+        let fetchedArticles = [];
+        try {
+            const url = apiTopic 
+                ? `https://gnews.io/api/v4/top-headlines`
+                : `https://gnews.io/api/v4/search`;
 
-        // 2. Initialize Gemini Model (Fast & Efficient)
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const params = {
+                lang: 'en',
+                country: 'in',
+                token: process.env.GNEWS_API_KEY,
+                max: 8 // Fetches up to 8 articles per category
+            };
 
-        for (const articleData of fetchedArticles) {
-            // Check for duplicates first to save AI credits
-            const rawSlug = createSlug(articleData.title);
-            const existingArticle = await Article.findOne({ 
-                $or: [{ slug: rawSlug }, { sourceUrl: articleData.url }] 
+            if (apiTopic) params.topic = apiTopic;
+            else params.q = category;
+
+            const res = await axios.get(url, { params });
+            fetchedArticles = res.data.articles || [];
+            console.log(`   👉 [GNews] Found ${fetchedArticles.length} articles for ${category}`);
+
+        } catch (e) {
+            console.error(`   ❌ [GNews Error] ${category}: ${e.message}`);
+            return;
+        }
+
+        // 2. Process and Save Directly (No AI)
+        for (const article of fetchedArticles) {
+            // Check Duplicates
+            const rawSlug = createSlug(article.title);
+            const exists = await Article.findOne({ 
+                $or: [{ urlHeadline: rawSlug }, { sourceUrl: article.url }] 
             });
 
-            if (!existingArticle && articleData.image && articleData.description) {
+            if (exists) {
+                console.log(`   ⚠️ Skipped (Duplicate): ${article.title.substring(0, 20)}...`);
+                continue;
+            }
+
+            if (!article.image || !article.title) {
+                 continue;
+            }
+
+            try {
+                const newSlug = createSlug(article.title) + '-' + Date.now().toString().slice(-4);
                 
-                // --- 🤖 AI MAGIC STARTS HERE ---
-                try {
-                    const prompt = `
-                        Act as a professional senior journalist for 'India Jagran'. 
-                        Rewrite the following news story into a unique, engaging, and SEO-optimized article.
-                        
-                        Original Title: ${articleData.title}
-                        Original Context: ${articleData.description} ${articleData.content || ''}
-                        
-                        Requirements:
-                        1. Headline: Catchy, click-worthy, but factual (max 15 words).
-                        2. Summary: A concise 60-word summary.
-                        3. Body: Write a detailed news report (300-400 words) in human-like tone. Use simple HTML tags (<p>, <h3>, <ul>) for formatting. Do NOT use markdown code blocks.
-                        4. Keywords: List 5-8 trending SEO keywords relevant to this topic.
-                        
-                        Output format: STRICT JSON object with keys: "headline", "summary", "body", "keywords".
-                    `;
+                // Directly mapping GNews fields to Article Schema
+                await new Article({
+                    title_en: article.title,
+                    longHeadline: article.title, // Use title as main headline
+                    urlHeadline: newSlug,
+                    slug: newSlug,
+                    
+                    summary_en: article.description || '',
+                    content_en: article.content || article.description || '', // Fallback to description
+                    
+                    category: formatTitle(category),
+                    author: article.source.name || 'India Jagran Desk', 
+                    sourceUrl: article.url, 
+                    featuredImage: article.image,
+                    
+                    publishedAt: article.publishedAt,
+                    status: 'published',
+                    createdAt: new Date()
+                }).save();
 
-                    const result = await model.generateContent(prompt);
-                    const response = await result.response;
-                    const text = response.text();
-
-                    // Clean JSON string (sometimes AI adds markdown backticks)
-                    const jsonString = text.replace(/```json|```/g, '').trim();
-                    const aiData = JSON.parse(jsonString);
-
-                    // Create New Unique Slug from AI Headline
-                    const newUniqueSlug = createSlug(aiData.headline);
-
-                    const newArticle = new Article({
-                        // AI Generated Fields
-                        title_en: articleData.title, // Keep original title for reference or fallback
-                        longHeadline: aiData.headline, // AI Catchy Headline
-                        urlHeadline: newUniqueSlug,
-                        slug: newUniqueSlug,
-                        
-                        summary_en: aiData.summary,
-                        content_en: aiData.body, // The Human-like AI written content
-                        keywords: aiData.keywords,
-                        
-                        // Meta Fields
-                        category: formatTitle(category),
-                        author: 'India Jagran', // Now it's your content!
-                        sourceUrl: articleData.url, // Keep source for internal reference, but hide from frontend if needed
-                        featuredImage: articleData.image,
-                        thumbnailCaption: aiData.headline,
-                        galleryImages: [],
-                        
-                        status: 'published', // Direct Publish because AI rewrote it!
-                        createdAt: new Date(articleData.publishedAt),
-                    });
-
-                    await newArticle.save();
-                    newArticlesCount++;
-                    console.log(`[AI-Writer] Published: ${aiData.headline}`);
-
-                } catch (aiError) {
-                    console.error(`[AI-Error] Skipped article "${articleData.title}":`, aiError.message);
-                    // Agar AI fail ho jaye toh article skip kar dein (Risk nahi lene ka)
-                    continue; 
-                }
+                newArticlesCount++;
+                console.log(`   ✅ Published: ${article.title.substring(0, 30)}...`);
+                
+            } catch (saveError) {
+                console.error(`   ❌ Save Error: ${saveError.message}`);
+                continue;
             }
         }
-
-        if (newArticlesCount > 0) {
-            console.log(`[Auto-Fetch] Successfully AI-rewrote & saved ${newArticlesCount} articles for ${category}`);
-        }
+        console.log(`[Auto-Fetch] ${category} done. New: ${newArticlesCount}`);
 
     } catch (err) {
-        console.error(`[Auto-Fetch] Error processing ${category}:`, err.message);
+        console.error(`[Fatal Error] ${category}:`, err.message);
     }
 };
 
 const runGNewsAutoFetch = async () => {
-    console.log(`[${new Date().toISOString()}] Running GNews fetch job...`);
-    const categoriesToFetch = [
-        'National', 'World', 'Politics', 'Business', 
+    console.log(`[${new Date().toISOString()}] 🚀 Job Started (Direct Mode)...`);
+    
+    // Sirf wahi categories rakhein jo zaroori hain (Quota bachane ke liye)
+    const categories = ['National', 'World', 'Politics', 'Business', 
         'Entertainment', 'Sports', 'Education', 'Health', 
-        'Tech', 'Religion', 'Environment','Crime', 'Opinion'
-    ];
-    for (const category of categoriesToFetch) {
-        await fetchAndStoreNewsForCategory(category);
+        'Tech', 'Religion', 'Environment','Crime', 'Opinion'];
+        
+    for (const cat of categories) {
+        await fetchAndStoreNewsForCategory(cat);
+        
+        // 🔥 CRITICAL FIX: 2 Second ka wait, taaki GNews Block na kare
+        console.log("   ⏳ Waiting 2 seconds for safety...");
+        await new Promise(resolve => setTimeout(resolve, 2000));
     }
-    console.log(`Job complete.`);
+    console.log(`[Job Complete]`);
 };
 
 const generateSitemap = async (req, res) => {
-    try {
-        res.setHeader('Content-Type', 'application/xml');
+    try { 
+        res.setHeader('Content-Type', 'application/xml');                            
         const baseUrl = "https://indiajagran.com";
         const today = new Date().toISOString();
         let xmlUrls = [];
