@@ -9,6 +9,12 @@ const createSlug = (title) => {
     return title.toString().toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
 };
 
+const cleanGNewsContent = (text) => {
+    if (!text) return "";
+    // Ye regex [+1234 chars] ya [1234 chars] pattern ko dhoond kar hata dega
+    return text.replace(/\s*\[\+?\d+\s*chars\]$/i, '').trim();
+};
+
 const formatTitle = (text = '') => {
     return text.replace(/\b\w/g, char => char.toUpperCase());
 };
@@ -531,7 +537,7 @@ const fetchAndStoreNewsForCategory = async (category) => {
                     slug: newSlug,
                     
                     summary_en: article.description || '',
-                    content_en: article.content || article.description || '', // Fallback to description
+                    content_en: cleanGNewsContent(article.content || article.description), // Fallback to description
                     
                     category: formatTitle(category),
                     author: article.source.name || 'India Jagran Desk', 
@@ -577,44 +583,85 @@ const runGNewsAutoFetch = async () => {
 };
 
 const generateSitemap = async (req, res) => {
-    try { 
-        res.setHeader('Content-Type', 'application/xml');                            
+    try {
+        // 1. Headers set karein
+        res.header('Content-Type', 'application/xml');
+        res.header('Cache-Control', 'public, max-age=3600'); // 1 ghante tak cache kare
+
         const baseUrl = "https://indiajagran.com";
         const today = new Date().toISOString();
-        let xmlUrls = [];
+
+        // 2. XML Start Stream
+        res.write(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`);
+
+        // 3. Static Pages
         const staticPages = ["", "about", "contact", "privacy-policy", "terms-condition", "subscribe"];
         staticPages.forEach(page => {
-            xmlUrls.push(`<url><loc>${baseUrl}/${page}</loc><lastmod>${today}</lastmod><priority>${page === "" ? "1.0" : "0.8"}</priority></url>`);
+            res.write(`
+  <url>
+    <loc>${baseUrl}/${page}</loc>
+    <lastmod>${today}</lastmod>
+    <priority>${page === "" ? "1.0" : "0.8"}</priority>
+  </url>`);
         });
-        const categories = ["national","politics","business","entertainment","sports","world","education","health","religion","crime","poetry-corner"];
+
+        // 4. Categories
+        const categories = ["national", "politics", "business", "entertainment", "sports", "world", "education", "health", "religion", "crime", "poetry-corner"];
         categories.forEach(cat => {
-            xmlUrls.push(`<url><loc>${baseUrl}/category/${cat}</loc><lastmod>${today}</lastmod><priority>0.9</priority></url>`);
+            res.write(`
+  <url>
+    <loc>${baseUrl}/category/${cat}</loc>
+    <lastmod>${today}</lastmod>
+    <priority>0.9</priority>
+  </url>`);
         });
-        const articles = await Article.find({ status: "published" })
-            .select("slug createdAt updatedAt")
+
+        // 5. DATABASE STREAMING (Updated for Hindi Support)
+        // ✅ CHANGE 1: Humne title_hi aur content_hi bhi select kiya hai taaki check kar sakein
+        const cursor = Article.find({ status: "published" })
+            .select("slug updatedAt createdAt title_hi content_hi") 
             .sort({ createdAt: -1 })
-            .lean() 
-            .exec();
-        if (!articles) { throw new Error("Database Query Failed (No articles returned)"); }
-        articles.forEach(art => {
-            if (art.slug) {
+            .cursor();
+
+        for (let doc = await cursor.next(); doc != null; doc = await cursor.next()) {
+            if (doc.slug) {
                 let dateStr = today;
                 try {
-                    if (art.updatedAt) dateStr = new Date(art.updatedAt).toISOString();
-                    else if (art.createdAt) dateStr = new Date(art.createdAt).toISOString();
+                    // Date fix logic
+                    if (doc.updatedAt) dateStr = new Date(doc.updatedAt).toISOString();
+                    else if (doc.createdAt) dateStr = new Date(doc.createdAt).toISOString();
                 } catch (e) { dateStr = today; }
-                xmlUrls.push(`<url><loc>${baseUrl}/article/${art.slug}</loc><lastmod>${dateStr}</lastmod><priority>0.7</priority></url>`);
+
+                // A. English URL (Default)
+                res.write(`
+  <url>
+    <loc>${baseUrl}/article/${doc.slug}</loc>
+    <lastmod>${dateStr}</lastmod>
+    <priority>0.7</priority>
+  </url>`);
+
+                // B. ✅ CHANGE 2: Hindi URL Logic
+                // Agar title_hi ya content_hi database me hai, to Google ko batao ki Hindi version bhi hai
+                if (doc.title_hi || (doc.content_hi && doc.content_hi.length > 10)) {
+                    res.write(`
+  <url>
+    <loc>${baseUrl}/article/${doc.slug}?lang=hi</loc>
+    <lastmod>${dateStr}</lastmod>
+    <priority>0.7</priority>
+  </url>`);
+                }
             }
-        });
-        const finalXml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${xmlUrls.join('\n')}
-</urlset>`;
-        res.send(finalXml);
+        }
+
+        // 6. End Stream
+        res.write('\n</urlset>');
+        res.end();
+
     } catch (error) {
-        console.error("Sitemap Crash:", error);
-        res.header('Content-Type', 'text/plain'); 
-        res.status(500).send(`SITEMAP GENERATION FAILED.\nREASON: ${error.message}\n\nSTACK: ${error.stack}`);
+        console.error("Sitemap Generation Error:", error);
+        // Agar stream start ho chuka hai to error text me nahi bhej sakte, bas end kar dein
+        res.end(); 
     }
 };
 

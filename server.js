@@ -96,63 +96,87 @@ app.get('/api/force-update-news', async (req, res) => {
 // ===========================================================================
 // MAGIC ROUTE (Updated with Image Optimization & WWW Fix)
 // ===========================================================================
+
 app.get('/article/:slug', async (req, res, next) => {
     const userAgent = req.headers['user-agent'] || '';
     const cleanSlug = req.params.slug; 
-    const queryParams = new URLSearchParams(req.query);
-    queryParams.set('r', '1'); 
     
-    const isBot = /facebookexternalhit|twitterbot|whatsapp|linkedinbot|telegrambot/i.test(userAgent);
+    // ✅ FIX 1: Humne ?r=1 wali line hata di hai. Ab koi faltu redirect nahi hoga.
+    const queryParams = new URLSearchParams(req.query);
+    const isHindi = queryParams.get('lang') === 'hi'; // Agar URL me ?lang=hi hai
+    
+    const isBot = /facebookexternalhit|twitterbot|whatsapp|linkedinbot|telegrambot|bot|googlebot|bingbot|yandex|slurp|duckduckgo/i.test(userAgent);
 
     try {
         const article = await Article.findOne({ slug: cleanSlug });
-
-        // ✅ FIX: Fallback URL se 'www' hata diya taaki redirect loop na bane
         const baseUrl = process.env.FRONTEND_URL || 'https://indiajagran.com';
 
+        // Agar article nahi mila, to Homepage par bhej do
         if (!article) {
             return isBot ? res.status(404).send('Article not found') : res.redirect(baseUrl);
         }
 
-        const title = article.longHeadline || article.title || 'India Jagran';
-        const summary = (article.summary || article.content || '').replace(/<[^>]*>?/gm, '').substring(0, 160) + '...';
+        // ✅ DYNAMIC LANGUAGE LOGIC
+        // Agar ?lang=hi hai, to Hindi title uthao, nahi to English
+        const title = isHindi 
+            ? (article.title_hi || article.longHeadline || article.title_en)
+            : (article.longHeadline || article.title_en || article.title_hi);
+
+        const rawSummary = isHindi
+            ? (article.summary_hi || article.content_hi || article.summary_en || '')
+            : (article.summary_en || article.content_en || '');
+
+        const summary = rawSummary.replace(/<[^>]*>?/gm, '').substring(0, 160) + '...';
         
         let image = article.featuredImage || `${baseUrl}/logo192.png`;
-        
-        // 1. Fix relative paths
         if (image && !image.startsWith('http')) {
             image = `${baseUrl}${image.startsWith('/') ? '' : '/'}${image}`;
         }
-
-        // 2. 🔥 Optimize Image for Bots (Cloudinary)
         image = getOptimizedUrl(image);
 
-        const frontendUrl = `${baseUrl}/article/${cleanSlug}?${queryParams.toString()}`;
-        const canonicalUrl = `${baseUrl}/article/${cleanSlug}`;
+        // ✅ URL handling for Canonical
+        const canonicalUrl = `${baseUrl}/article/${cleanSlug}${isHindi ? '?lang=hi' : ''}`;
 
         if (isBot) {
             const html = `
                 <!DOCTYPE html>
-                <html lang="en">
+                <html lang="${isHindi ? 'hi' : 'en'}">
                 <head>
                     <meta charset="UTF-8">
+                    <title>${title}</title>
+                    <meta name="description" content="${summary}" />
+                    
+                    <meta property="og:locale" content="${isHindi ? 'hi_IN' : 'en_US'}" />
                     <meta property="og:type" content="article" />
                     <meta property="og:title" content="${title}" />
                     <meta property="og:description" content="${summary}" />
                     <meta property="og:image" content="${image}" />
                     <meta property="og:url" content="${canonicalUrl}" />
-                    <meta property="og:site_name" content="India Jagran" />
-                    <link rel="canonical" href="${canonicalUrl}" /> 
+                    
                     <meta name="twitter:card" content="summary_large_image" />
                     <meta name="twitter:title" content="${title}" />
+                    <meta name="twitter:description" content="${summary}" />
                     <meta name="twitter:image" content="${image}" />
+                    
+                    <link rel="canonical" href="${canonicalUrl}" /> 
                 </head>
-                <body><h1>${title}</h1><img src="${image}" /><p>${summary}</p></body>
+                <body>
+                    <h1>${title}</h1>
+                    <img src="${image}" alt="${title}" />
+                    <p>${summary}</p>
+                </body>
                 </html>
             `;
             return res.send(html);
         }
-        return res.redirect(frontendUrl);
+
+        // User Handling
+        // Agar user ?lang=hi ke sath aaya hai, to wahi pass karo
+        let redirectUrl = `${baseUrl}/article/${cleanSlug}`;
+        if (isHindi) redirectUrl += `?lang=hi`;
+
+        return res.redirect(redirectUrl);
+
     } catch (error) {
         console.error('Magic Route Error:', error);
         return res.redirect('https://indiajagran.com');
